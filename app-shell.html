@@ -382,7 +382,10 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
          00_규칙엔진 / 규칙_최신.json, 01_세계관.json, 02_여주.json
    ========================================================= */
 var CONFIG={CLIENT_ID:"279160268866-6btq4gvj3g1e725vbk370kh8j2otlgom.apps.googleusercontent.com",
-  SCOPE:"https://www.googleapis.com/auth/drive",ROOT_FOLDER_NAME:"기획-v2"};
+  SCOPE:"https://www.googleapis.com/auth/drive",ROOT_FOLDER_NAME:"기획-v2",
+  /* 공유 드라이브의 기획-v2 폴더 ID로 고정 — 이름 중복(내 드라이브 vs 공유드라이브) 방지.
+     비우면 이름으로 자동 탐색. 팀 배포에선 공유드라이브 폴더 ID를 넣어 전원이 같은 걸 보게 함. */
+  ROOT_FOLDER_ID:"1kpSBlbvIVhjCL4RjE4mofQ474E31SwVD"};
 /* ===== AI 모델 표시용 (실제 강제는 프록시가) — OpenRouter 모델 ID ===== */
 var AI_MODEL="anthropic/claude-sonnet-5";
 /* ===== AI 프록시 URL — OpenRouter 키가 숨겨진 Cloudflare Worker 주소.
@@ -447,7 +450,7 @@ function today(){return new Date().toISOString().slice(0,10);}
 function setTxt(id,t){var e=document.getElementById(id);if(e)e.textContent=t;}
 async function discover(){
   var manual=(val('rootIdInput')||'').trim();
-  ROOT_ID=manual||await findFolderByName(CONFIG.ROOT_FOLDER_NAME,null);
+  ROOT_ID=manual||CONFIG.ROOT_FOLDER_ID||await findFolderByName(CONFIG.ROOT_FOLDER_NAME,null);
   if(!ROOT_ID)throw new Error("'"+CONFIG.ROOT_FOLDER_NAME+"' 폴더를 찾지 못했습니다. 로그인 화면 '고급'에서 폴더 ID를 지정하세요.");
   var kids=await driveList("'"+ROOT_ID+"' in parents and trashed=false"); // 루트 1회 조회로 폴더+파일 모두 파악
   var folder={},file={};
