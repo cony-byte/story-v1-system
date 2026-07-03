@@ -1,0 +1,31 @@
+{
+  "_how_to_use": "세계관·여주는 프로젝트당 각 1개인 고정 상수(통제변수)다. 이 폼 하나로 둘 다 입력한다. world 블록을 채워 01_세계관.json 으로, heroine 블록을 채워 02_여주.json 으로 저장하면 된다. 최초 1회 세팅 후 거의 바뀌지 않는다.",
+  "_note": "이 파일은 입력폼(템플릿)이다. 실제 사용값은 01_세계관.json / 02_여주.json 에 있다.",
+
+  "world": {
+    "id": "world_영문슬러그 (예: world_highschool)",
+    "name": "세계관 이름 (예: 고등학교)",
+    "tone": "톤·분위기 한 줄 (예: 풋풋하지만 텐션 높은 명문고 청춘 로맨스)",
+    "setting": "배경·규칙·제약 (예: 명문 사립고, 학생회가 실질 권력, 성적·서열 라이벌 구도)",
+    "localization_rules": [
+      "보편 트리거를 이 세계관에 이식하는 치환 규칙 (배열)",
+      "예: 재벌 CEO → 전교회장·학생회장",
+      "예: 계약결혼 → 커플 미션·짝 배정"
+    ],
+    "_fixed": true,
+    "created_at": "YYYY-MM-DD",
+    "updated_at": "YYYY-MM-DD"
+  },
+
+  "heroine": {
+    "id": "heroine_영문슬러그 (예: heroine_harin)",
+    "world_id": "소속 세계관 id (world 블록의 id와 동일)",
+    "name": "여주 이름",
+    "grade_class": "학년·반 (예: 3학년)",
+    "profile": "여주 설정 한두 줄 — 남캐들의 트리거가 작동하는 관계의 중심(POV 화자)",
+    "role": "역할 (예: 모든 남캐가 상대하는 고정 상대역 — 변인 통제용 상수)",
+    "_fixed": true,
+    "created_at": "YYYY-MM-DD",
+    "updated_at": "YYYY-MM-DD"
+  }
+}

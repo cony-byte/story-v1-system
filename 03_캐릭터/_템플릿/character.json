@@ -1,0 +1,72 @@
+{
+  "_form_version": "v2 (기획최적화 · AI선생성/사람수정)",
+  "_how_to_use": "이 폼은 '사람이 다 채우는 입력폼'이 아니라 '기획 브리프'다. 사람은 _brief의 STEP1~5만(또는 원하는 것만) 정하고, 나머지 필드는 AI가 규칙_최신 기반으로 생성한 뒤 사람이 고친다. world_id·heroine_id는 고정 상수. 저장(character.json) 시 '_' 접두사 필드는 제거한다.",
+
+  "_brief": {
+    "note": "사람이 정하는 건 여기뿐. 비우면 AI가 목표(step1_goal) 기준 자동 생성. STEP2~5는 아래 레코드 필드로 확정된다.",
+    "step1_goal": "",
+    "step1_goal_options": ["설렘", "저장유도", "댓글유도"],
+    "step2_core_trigger": "",
+    "step3_archetype": "",
+    "step4_gap_concept": "",
+    "step5_first_appearance_seed": ""
+  },
+
+  "_goal_playbook": {
+    "_desc": "STEP1 목표별로 규칙_최신(2026-07-02, 100편)이 미는 조합. AI는 STEP2~5가 비면 여기서 골라 생성한다. 숫자는 ER%/저장률% 중앙값.",
+    "설렘": {
+      "노리는_지표": "참여율(ER)·조회수",
+      "추천_1차트리거": ["jealousy_possession_or_rival(질투 ER0.454)", "choice_ultimatum_or_deadline(직진 ER0.454)", "love_confession_or_desire(고백 ER0.442)"],
+      "추천_아키타입": ["얼음 회장님", "다정한 소꿉친구", "열혈 직진남"]
+    },
+    "저장유도": {
+      "노리는_지표": "저장률(save_rate)",
+      "추천_1차트리거": ["protective_claim_or_rescue(위기구원 저장0.456)", "choice_ultimatum_or_deadline(저장0.391)", "power_money_or_status(저장0.339)"],
+      "추천_아키타입": ["나쁜남자·일진(위기구원형)", "미스터리 전학생"]
+    },
+    "댓글유도": {
+      "노리는_지표": "댓글·논쟁(감정대립)",
+      "추천_1차트리거": ["emotional_question_or_confrontation(감정추궁 n30·ER0.391)", "misunderstanding_or_accusation(오해 ER0.404)", "threat_danger_or_revenge(위협/복수)"],
+      "추천_아키타입": ["나쁜남자·일진", "미스터리 전학생"]
+    }
+  },
+
+  "_ai_rules": [
+    "STEP1(step1_goal)은 필수. 나머지가 비면 _goal_playbook에서 목표에 맞는 트리거/아키타입을 골라 생성한다.",
+    "world_id는 'world_highschool', heroine_id는 'heroine_harin' 고정(통제변수). 바꾸지 않는다.",
+    "primary_trigger는 규칙_최신.json 트리거 키 중 하나. ★고유 제약 없음 — 캐릭터끼리 같은 트리거를 비교하는 게 실험 목적이다.",
+    "gap_surface(강함)와 gap_hidden(여주 앞에서만 약함)은 반드시 대비. first3s_hook은 얼굴만 X, 관계 갈등 단서 포함.",
+    "recommendation은 자유 창작 금지 — _scripts/recommend.py (char {id})가 채운다. 데이터칩=규칙엔진 고정, 판단칩=매핑표. method/model/prompt_version으로 추적.",
+    "id는 char_+영문슬러그(폴더명과 일치). created_at/updated_at은 오늘(YYYY-MM-DD), status는 draft. 생성 후 사람 수정 전제."
+  ],
+
+  "id": "char_영문슬러그",
+  "world_id": "world_highschool",
+  "heroine_id": "heroine_harin",
+  "goal": "",
+  "name": "이름",
+  "grade_class": "학년·반 (예: 3학년 2반)",
+  "archetype": "아키타입 (얼음 회장님 / 다정한 소꿉친구 / 나쁜남자·일진 / 열혈 직진남 / 미스터리 전학생 / 기타)",
+  "primary_trigger": "1차 트리거 — 규칙_최신.json 트리거 키에서 선택 (고유 제약 없음, 겹쳐도 됨)",
+  "secondary_trigger": "2차 트리거",
+  "gap_surface": "겉모습·평소 (강함)",
+  "gap_hidden": "여주 앞에서만 (약함)",
+  "signature_action": "반복되는 시그니처 행동",
+  "first3s_hook": "첫 등장 3초 훅 대사·행동 (얼굴만 X, 관계 갈등 단서 함께)",
+  "tension_partner": "관계 텐션 상대 (여주 / 라이벌 이름)",
+  "taboo_barrier": "금기·장벽 (있으면, 없으면 빈 문자열)",
+  "recommendation": {
+    "for": "primary_trigger",
+    "label": "추천 트리거 사람용 라벨 (예: ② 위기구원) — 규칙_최신.json label 그대로",
+    "reasons": [
+      "기획 언어 칩 3~5개 — schema.md '추천 이유 칩' 어휘 사용",
+      "_scripts/recommend.py char {id} 로 산출"
+    ],
+    "method": "rule",
+    "model": null,
+    "prompt_version": "v1"
+  },
+  "status": "draft",
+  "created_at": "YYYY-MM-DD",
+  "updated_at": "YYYY-MM-DD"
+}

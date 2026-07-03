@@ -1,0 +1,30 @@
+{
+  "id": "char_haneul",
+  "world_id": "world_highschool",
+  "heroine_id": "heroine_harin",
+  "goal": "",
+  "name": "하늘",
+  "grade_class": "3학년 3반 · 소꿉친구",
+  "archetype": "다정한 소꿉친구",
+  "primary_trigger": "protective_claim_or_rescue",
+  "secondary_trigger": "love_confession_or_desire",
+  "gap_surface": "늘 웃고 다 받아주는 동네 오빠 같은 존재",
+  "gap_hidden": "여주가 위험할 때만 눈빛이 싹 변하고 목소리가 낮아짐",
+  "signature_action": "여주가 넘어지거나 다칠 뻔한 결정적 0.5초에 팔로 막아줌, 그리고 담담하게 '지나가다.'",
+  "first3s_hook": "체육대회 중 굴러오는 구조물에 맞기 직전, 하늘이 팔로 막아주고 아무 일 없었다는 듯: \"안 다쳤지?\"",
+  "tension_partner": "서준",
+  "taboo_barrier": "",
+  "recommendation": {
+    "for": "primary_trigger",
+    "label": "② 위기구원",
+    "reasons": [
+      "저장률 최상위 (baseline 대비 크게 상회)",
+      "몰입도(ER) 상위권 (14개 트리거 중 2위)",
+      "'위기구원' 트로프가 성과 최상위 (ER 0.83↑)",
+      "'다정한 소꿉친구'의 위험 순간 돌변 갭과 궁합이 좋음"
+    ]
+  },
+  "status": "published",
+  "created_at": "2026-07-03",
+  "updated_at": "2026-07-03"
+}

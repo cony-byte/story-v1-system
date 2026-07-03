@@ -1,0 +1,14 @@
+{
+  "character_id": "char_seojun",
+  "name": "서준",
+  "n_episodes": 2,
+  "n_published": 2,
+  "median_er": 0.825,
+  "median_save_rate": 0.395,
+  "median_views": 189000.0,
+  "total_views": 378000,
+  "character_score": 0.825,
+  "generated_at": "2026-07-03T09:49:31",
+  "_note": "build_performance.py 자동 생성물. 직접 수정하지 말 것.",
+  "vs_baseline_er": 0.405
+}

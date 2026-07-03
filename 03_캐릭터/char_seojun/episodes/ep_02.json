@@ -1,0 +1,42 @@
+{
+  "id": "ep_02",
+  "character_id": "char_seojun",
+  "goal": "",
+  "title": "너, 오늘 나랑 가자",
+  "target_trigger": "choice_ultimatum_or_deadline",
+  "emotion_shift": "",
+  "core_event": "",
+  "logline": "축제 파트너를 정하는 마감 직전, 서준이 규정을 어기고 하린 앞에 손을 내민다.",
+  "recommendation": {
+    "for": "target_trigger",
+    "label": "④ 직진·최후통첩",
+    "reasons": [
+      "저장률 baseline 상회 + 몰입도(ER) 상위권 (4위)",
+      "서준이 아직 안 쓴 트리거로 매력 축 확장",
+      "다음 감정선(독점 선언 → 최후통첩)으로 자연스럽게 이어짐"
+    ]
+  },
+  "beats": {
+    "HOOK": "0-3초: 파트너 신청 마감 종이 울리기 직전, 서준이 하린 책상에 손을 짚으며 \"너, 오늘 나랑 가자.\"",
+    "SETUP": "3-12초: 학생회장은 파트너를 못 정한다는 암묵 규칙. 모두가 술렁.",
+    "BUILD": "12-30초: 시간은 없고, 도윤도 하린에게 다가온다. 서준의 눈빛이 흔들린다.",
+    "PAYOFF": "30-45초: \"고민할 시간 3초 줄게. …아니, 그냥 나여야 해.\" 직진 선언.",
+    "HOOKOUT": "마지막 3초: 하린의 대답 대신 종이 울리고 암전. \"근데 나 아직 대답 안 했는데.\""
+  },
+  "storyboard": null,
+  "judge_score": null,
+  "status": "published",
+  "published_at": null,
+  "metrics": {
+    "views": 168000,
+    "likes": 25000,
+    "comments": 3100,
+    "shares": 3900,
+    "saves": 6400,
+    "duration_s": 32,
+    "er_pct": 0.79,
+    "save_rate_pct": 0.38
+  },
+  "created_at": "2026-07-03",
+  "updated_at": "2026-07-03"
+}

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>에피소드 생성폼 (3-STEP → AI 초안)</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f8;color:#1c1c1e;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:14px;line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding:20px}
+.k{color:#8a8a90;font-size:11px}
+.muted{color:#8a8a90;font-size:12px}
+input,select,textarea{font:inherit;width:100%;padding:8px 9px;border:1px solid #d4d4da;border-radius:8px;background:#fff;margin-top:4px}
+textarea{min-height:44px;resize:vertical}
+label{display:block;font-size:12px;color:#555;margin-top:9px;font-weight:600}
+button{font:inherit;border:1px solid #cfcfd6;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
+button.primary{background:#1c1c1e;color:#fff;border-color:#1c1c1e}
+button.mini{padding:2px 8px;font-size:12px}
+.hidden{display:none}
+.wizhead{font-size:16px;font-weight:800;margin:2px 0 14px}
+.qc{border:1px solid #ececf0;border-radius:10px;padding:12px 13px;margin-bottom:10px;background:#fff}
+.qt{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:7px}
+.qn{background:#1c1c1e;color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
+button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;border-color:#d9cdf7;color:#6d28d9}
+.card{background:#fff;border:1px solid #e6e6ea;border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{font-size:14px;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.draftout{border:1px solid #e3dbfb;background:#fdfcff}
+.beat{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px}
+.beat .bk{flex:0 0 70px;font-size:11px;font-weight:700;color:#6d28d9;background:#f4f0ff;border:1px solid #e3dbfb;border-radius:6px;padding:6px 4px;text-align:center;margin-top:3px}
+.beat textarea{margin-top:0}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:#fff;padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;transition:.2s;pointer-events:none}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="wizhead">🎬 새 에피소드 만들기 <span class="k" style="font-weight:400">— 3가지만 고르면 AI가 초안을 씁니다</span></div>
+
+  <div class="qc"><div class="qt"><span class="qn">STEP 1</span> 주인공 남캐</div>
+    <select id="e_char"><option value="">(선택)</option><option>민재</option><option>서준</option><option>하늘</option></select></div>
+
+  <div class="qc"><div class="qt"><span class="qn">STEP 2</span> 이번 화에서 만들 감정</div>
+    <select id="e_trig">
+      <option value="">(선택)</option>
+      <option value="jealousy_possession_or_rival">질투</option>
+      <option value="protective_claim_or_rescue">위기구원(보호욕)</option>
+      <option value="love_confession_or_desire">설렘·고백</option>
+      <option value="choice_ultimatum_or_deadline">직진·최후통첩</option>
+      <option value="misunderstanding_or_accusation">오해·서운함</option>
+      <option value="threat_danger_or_revenge">위협·긴장</option></select></div>
+
+  <div class="qc"><div class="qt"><span class="qn">STEP 3</span> 이번 화 핵심 장면</div>
+    <select id="e_core">
+      <option value="">(선택 · 비우면 AI가 감정에 맞춰 제안)</option>
+      <option>다른 남자와 웃는 걸 봄</option>
+      <option>위험한 순간 먼저 손을 뻗음</option>
+      <option>둘만 남은 공간에서 진심이 터짐</option>
+      <option>오해로 멀어졌다 다시 마주침</option></select></div>
+
+  <div style="margin-top:6px"><button class="primary" style="width:100%;padding:12px" onclick="genEp()">✨ AI로 에피소드 생성</button></div>
+
+  <div class="card draftout hidden" id="epDraft" style="margin-top:14px">
+    <h2>📝 에피소드 초안 <span class="muted" style="font-weight:400">— AI 생성 · 바로 수정 가능</span>
+      <button class="mini regen" style="margin-left:auto" onclick="genEp()">✨ 다시 생성</button></h2>
+    <label>한 줄 줄거리 <textarea id="d_log">무심하던 민재가 여주가 다른 남자와 웃는 걸 보고 처음으로 감정을 드러낸다.</textarea></label>
+    <div class="k" style="margin:12px 0 4px;font-weight:700">구성 (HOOK → HOOK-OUT)</div>
+    <div class="beat"><span class="bk">HOOK</span><textarea id="d_hook">“너, 걔랑 그렇게 친했어?”</textarea></div>
+    <div class="beat"><span class="bk">SETUP</span><textarea id="d_setup">여주는 반 친구와 웃으며 복도를 걷는다.</textarea></div>
+    <div class="beat"><span class="bk">BUILD</span><textarea id="d_build">민재는 신경 안 쓰는 척하지만 계속 시선이 따라간다.</textarea></div>
+    <div class="beat"><span class="bk">PAYOFF</span><textarea id="d_payoff">여주가 넘어질 뻔한 순간 민재가 먼저 손목을 잡는다.</textarea></div>
+    <div class="beat"><span class="bk">HOOK-OUT</span><textarea id="d_hookout">“다음부터 내 앞에서 그렇게 웃지 마.”</textarea></div>
+    <div style="margin-top:12px;display:flex;gap:8px"><button class="primary" onclick="toast('드래프트로 저장 (데모)')">드래프트로 저장</button><button onclick="document.getElementById('epDraft').classList.add('hidden')">닫기</button></div>
+  </div>
+</div>
+<div id="toast"></div>
+<script>
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1800);}
+function genEp(){var d=document.getElementById('epDraft');d.classList.remove('hidden');toast('AI 초안 생성 (데모)');d.scrollIntoView({behavior:'smooth',block:'nearest'});}
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "id": "heroine_harin",
+  "world_id": "world_highschool",
+  "name": "하린",
+  "grade_class": "3학년",
+  "profile": "평범하지만 심지 있는 여주. 남캐들의 트리거가 작동하는 관계의 중심(POV 화자).",
+  "role": "모든 남캐가 상대하는 고정 상대역 — 변인 통제용 상수",
+  "_fixed": true,
+  "created_at": "2026-07-03",
+  "updated_at": "2026-07-03"
+}

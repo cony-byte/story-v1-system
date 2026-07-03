@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>캐릭터 생성폼 (5-STEP)</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f8;color:#1c1c1e;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:14px;line-height:1.5}
+.wrap{max-width:560px;margin:0 auto;padding:20px}
+h1{font-size:18px;margin:0 0 2px}
+.sub{color:#8a8a90;font-size:12px;margin-bottom:16px}
+.k{color:#8a8a90;font-size:11px}
+input,select,textarea{font:inherit;width:100%;padding:8px 9px;border:1px solid #d4d4da;border-radius:8px;background:#fff;margin-top:4px}
+textarea{min-height:44px;resize:vertical}
+label{display:block;font-size:12px;color:#555;margin-top:9px;font-weight:600}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{font:inherit;border:1px solid #cfcfd6;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
+button.primary{background:#1c1c1e;color:#fff;border-color:#1c1c1e}
+button.mini{padding:2px 8px;font-size:12px}
+.wizhead{font-size:16px;font-weight:800;margin:2px 0 14px}
+.step{border:1px solid #ececf0;border-radius:10px;padding:12px 13px;margin-bottom:10px;background:#fff}
+.steptit{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:7px}
+.stepno{background:#1c1c1e;color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
+.stepq{color:#8a8a90;font-size:12px;margin:4px 0 8px}
+.airec{background:#f4f0ff;border:1px solid #e3dbfb;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12.5px}
+button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;border-color:#d9cdf7;color:#6d28d9}
+.advbox{border:1px dashed #d9d9e0;border-radius:10px;padding:2px 12px;margin-bottom:6px;background:#fafafb}
+.advbox summary{cursor:pointer;font-size:12px;color:#6b6b70;font-weight:600;padding:8px 0}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:#fff;padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;transition:.2s;pointer-events:none}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="wizhead">🧑‍🎤 새 남캐 만들기 <span class="k" style="font-weight:400">— STEP만 정하면 AI가 나머지를 생성 (세계관·여주 고정)</span></div>
+
+  <div class="step">
+    <div class="steptit"><span class="stepno">STEP 1</span> 목표</div>
+    <div class="stepq">무슨 반응을 만들 캐릭터인가?</div>
+    <select id="c_goal">
+      <option value="">(선택)</option><option>설렘</option><option>저장유도</option><option>댓글유도</option></select>
+    <div class="airec">🤖 <b>AI 추천</b> — “위기구원 + 얼음 회장형” 조합
+      <div class="k" style="margin-top:2px">이유: 최근 성과가 높고, 아직 이 세계관에서 덜 사용됨</div>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="steptit"><span class="stepno">STEP 2</span> 핵심 트리거</div>
+    <div class="stepq">어떤 상황에서 설렘을 만들 것인가?</div>
+    <select id="c_trig">
+      <option value="">(비우면 AI 추천)</option>
+      <option value="protective_claim_or_rescue">위기구원 (② 보호·구원)</option>
+      <option value="jealousy_possession_or_rival">독점욕·질투 (①)</option>
+      <option value="choice_ultimatum_or_deadline">직진·최후통첩 (④)</option>
+      <option value="love_confession_or_desire">고백·욕망</option>
+      <option value="emotional_question_or_confrontation">감정추궁·대립</option>
+      <option value="misunderstanding_or_accusation">오해·누명</option>
+      <option value="threat_danger_or_revenge">위협·위험·복수</option>
+      <option value="power_money_or_status">재력·권력</option>
+      <option value="secret_lie_or_reveal">비밀·폭로</option></select>
+  </div>
+
+  <div class="step">
+    <div class="steptit"><span class="stepno">STEP 3</span> 남캐 타입</div>
+    <div class="stepq">이 캐릭터의 기본 매력 방향</div>
+    <select id="c_arch">
+      <option value="">(비우면 AI 추천)</option>
+      <option>얼음 회장형</option><option>다정한 소꿉친구</option><option>나쁜남자·일진</option>
+      <option>열혈 직진남</option><option>미스터리 전학생</option><option>기타</option></select>
+  </div>
+
+  <div class="step">
+    <div class="steptit"><span class="stepno">STEP 4</span> 매력 포인트 (겉과 속의 갭)
+      <button class="mini regen" onclick="toast('AI로 다시 생성 (데모)')">✨ AI로 다시 생성</button></div>
+    <div class="stepq">갭 / 직진성 / 위험성 / 보호욕 등</div>
+    <div class="row2">
+      <label>겉 (강함) <input id="c_gs" placeholder="차갑고 무심함"></label>
+      <label>속 (약함) <input id="c_gh" placeholder="여주 위험엔 가장 먼저 움직임"></label>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="steptit"><span class="stepno">STEP 5</span> 첫 등장 장면
+      <button class="mini regen" onclick="toast('AI로 다시 생성 (데모)')">✨ AI로 다시 생성</button></div>
+    <div class="stepq">첫 3초에 어떻게 각인시킬 것인가? (얼굴만 X — 관계 갈등 단서)</div>
+    <textarea id="c_hook" placeholder="넘어지는 순간, 말없이 손목을 잡아 세운다."></textarea>
+  </div>
+
+  <details class="advbox">
+    <summary>상세 항목 (선택) — 비우면 AI가 채웁니다</summary>
+    <div class="row2"><label>이름 <input id="c_name"></label><label>ID <input id="c_id" placeholder="char_dowoon"></label></div>
+    <label>2차 상황(보조 트리거) <select id="c_trig2">
+      <option value="">(없음)</option>
+      <option value="love_confession_or_desire">고백·욕망</option>
+      <option value="jealousy_possession_or_rival">독점욕·질투</option>
+      <option value="protective_claim_or_rescue">위기구원</option>
+      <option value="choice_ultimatum_or_deadline">직진·최후통첩</option></select></label>
+    <label>시그니처 행동 <input id="c_sig"></label>
+    <div class="row2"><label>텐션 상대 <input id="c_tp"></label><label>금기·장벽 <input id="c_taboo"></label></div>
+  </details>
+
+  <div style="margin-top:12px"><button class="primary" style="width:100%;padding:12px" onclick="toast('남캐 생성 (데모)')">남캐 생성</button></div>
+</div>
+<div id="toast"></div>
+<script>
+function toast(m){var t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},1800);}
+</script>
+</body>
+</html>

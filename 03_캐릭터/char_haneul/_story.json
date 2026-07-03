@@ -1,0 +1,19 @@
+{
+  "character_id": "char_haneul",
+  "title": "하늘 — ② 위기구원",
+  "central_trigger": "protective_claim_or_rescue",
+  "logline": "다정한 소꿉친구 '하늘'이(가) 하린을(를) 두고 '② 위기구원' 트리거를 회수하는 1부작 시리즈.",
+  "arc": [
+    {
+      "episode_id": "ep_01",
+      "title": "안 다쳤지?",
+      "logline": "체육대회에서 하린이 사고를 당할 뻔한 0.5초, 늘 웃던 소꿉친구 하늘의 눈빛이 처음으로 바뀐다."
+    }
+  ],
+  "n_episodes": 1,
+  "summary_method": "rule",
+  "model": null,
+  "prompt_version": "story_v1",
+  "generated_at": "2026-07-03T11:48:15",
+  "_note": "build_story.py 자동 생성물. 직접 수정하지 말 것."
+}

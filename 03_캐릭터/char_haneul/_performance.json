@@ -1,0 +1,14 @@
+{
+  "character_id": "char_haneul",
+  "name": "하늘",
+  "n_episodes": 1,
+  "n_published": 1,
+  "median_er": 0.71,
+  "median_save_rate": 0.47,
+  "median_views": 132000,
+  "total_views": 132000,
+  "character_score": 0.71,
+  "generated_at": "2026-07-03T09:49:31",
+  "_note": "build_performance.py 자동 생성물. 직접 수정하지 말 것.",
+  "vs_baseline_er": 0.29
+}

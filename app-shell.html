@@ -1,0 +1,639 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>숏폼 기획 대시보드 — 레이아웃 쉘 (로그인 후 화면)</title>
+<style>
+:root{color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f8;color:#1c1c1e;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:14px;line-height:1.5}
+.wrap{max-width:1120px;margin:0 auto;padding:16px}
+h1{font-size:20px;margin:0 0 2px}
+.sub{color:#6b6b70;font-size:12px;margin-bottom:12px}
+.card{background:#fff;border:1px solid #e6e6ea;border-radius:12px;padding:14px;margin-bottom:14px}
+.card h2{font-size:14px;margin:0 0 10px;display:flex;align-items:center;gap:6px}
+.muted{color:#8a8a90;font-size:12px}
+.grid{display:grid;grid-template-columns:1fr;gap:14px}
+@media(min-width:860px){.grid{grid-template-columns:1fr 360px}}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th,td{text-align:left;padding:5px 6px;border-bottom:1px solid #f0f0f2}
+th{color:#8a8a90;font-weight:600}
+.badge{display:inline-block;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:600;white-space:nowrap}
+.b-strong{background:#e6f7ec;color:#137a3d}.b-weak{background:#fdecec;color:#c0392b}
+.b-blue{background:#e8f0fe;color:#1a56c4}.b-gray{background:#eef0f4;color:#555}.b-draft{background:#fff2d6;color:#8a5a00}
+.b-fixed{background:#ede9fe;color:#6d28d9}
+.fixedrow{display:flex;gap:10px;flex-wrap:wrap}
+.fixedrow .fx{flex:1;min-width:220px;background:#faf9ff;border:1px solid #e7e2fb;border-radius:10px;padding:10px 12px}
+button{font:inherit;border:1px solid #cfcfd6;background:#fff;border-radius:8px;padding:6px 10px;cursor:pointer}
+button.primary{background:#1c1c1e;color:#fff;border-color:#1c1c1e}
+button.pub{background:#137a3d;color:#fff;border-color:#137a3d}
+button.del{background:#fff;color:#c0392b;border-color:#e3b3b3}
+button.mini{padding:2px 8px;font-size:12px}
+button:disabled{opacity:.5;cursor:not-allowed}
+input,select,textarea{font:inherit;width:100%;padding:7px 8px;border:1px solid #d4d4da;border-radius:8px;background:#fff;margin-top:3px}
+textarea{min-height:42px;resize:vertical}
+label{display:block;font-size:12px;color:#555;margin-top:9px;font-weight:600}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.tabs button.active{background:#1c1c1e;color:#fff;border-color:#1c1c1e}
+.hidden{display:none}
+.note{font-size:12px;padding:8px 10px;border-radius:8px;margin-top:8px}
+.note.err{background:#fdecec;color:#c0392b}.note.ok{background:#e6f7ec;color:#137a3d}.note.info{background:#eef4ff;color:#1a56c4}
+.pill{font-size:11px;background:#eef0f4;color:#555;border-radius:6px;padding:1px 6px;margin:1px}
+.recbox{border:1px dashed #cbb;background:#fdfbff;border-radius:8px;padding:8px;margin-bottom:8px;font-size:12px}
+.chip{display:inline-block;font-size:11px;background:#eef7f0;color:#137a3d;border:1px solid #d4ead9;border-radius:999px;padding:1px 8px;margin:2px 2px 0 0}
+.chip.warn{background:#fff7e6;color:#a06000;border-color:#f0e0c0}
+.chip.data{background:#e8f0fe;color:#1a56c4;border-color:#c5d7f7}
+.k{color:#8a8a90;font-size:11px}
+#map{width:100%;overflow:auto;min-height:120px;text-align:center}
+#map svg{max-width:100%;height:auto}
+.storybox{border:1px solid #e6e6ea;border-radius:10px;padding:10px;margin-bottom:10px}
+.storybox .t{font-weight:700}
+.draftrow{border:1px solid #f0e2c0;background:#fffdf6;border-radius:8px;padding:8px;margin-bottom:8px;font-size:12px}
+.draftrow .btns{margin-top:6px;display:flex;gap:6px;flex-wrap:wrap}
+.legend{font-size:11px;color:#8a8a90;margin-top:6px}
+#toast{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);background:#1c1c1e;color:#fff;padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;transition:.2s;pointer-events:none;z-index:50}
+#toast.show{opacity:1}
+.spin{display:inline-block;width:12px;height:12px;border:2px solid #ccc;border-top-color:#1c1c1e;border-radius:50%;animation:s .7s linear infinite;vertical-align:-1px}
+@keyframes s{to{transform:rotate(360deg)}}
+.detail{font-size:12px}.detail div{margin:2px 0}
+.adv{font-size:11px;color:#a06000;background:#fff7e6;border-radius:6px;padding:4px 8px;margin-top:4px}
+.shellbar{max-width:1120px;margin:0 auto 0;padding:8px 16px 0}
+.shellbar .note{margin-top:0}
+.kpi{flex:1;min-width:132px;background:#fafbfc;border:1px solid #eceef2;border-radius:10px;padding:11px 14px}
+.kpi .kv{font-size:26px;font-weight:800;line-height:1.15;margin-top:2px}
+.kpi .ku{font-size:14px;font-weight:700;color:#8a8a90;margin-left:2px}
+.todo{margin-bottom:14px}
+.todo .lab{font-size:11px;font-weight:700;color:#1a56c4;letter-spacing:.05em;margin-bottom:9px}
+.stepcards{display:flex;gap:10px;flex-wrap:wrap}
+.stepcard{flex:1;min-width:190px;background:#fff;border:1px solid #e6e6ea;border-radius:10px;padding:12px 13px;display:flex;flex-direction:column;gap:6px}
+.stepcard .sc-top{display:flex;align-items:center;justify-content:space-between}
+.stepcard .sc-num{width:22px;height:22px;border-radius:50%;background:#e3e6ec;color:#8a8a90;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center}
+.stepcard .sc-status{font-size:10.5px;font-weight:700;color:#8a8a90;white-space:nowrap}
+.stepcard .sc-title{font-size:14px;font-weight:800}
+.stepcard .sc-why{font-size:11.5px;color:#6b6b70;line-height:1.45;flex:1}
+.stepcard button{align-self:flex-start;margin-top:4px}
+.stepcard.done{background:#f3fbf5;border-color:#b3e0c4}
+.stepcard.done .sc-num{background:#137a3d;color:#fff}
+.stepcard.done .sc-status{color:#137a3d}
+.stepcard.rec{border-color:#1a56c4;box-shadow:0 0 0 2px #cdddfb}
+.stepcard.rec .sc-num{background:#1a56c4;color:#fff}
+.stepcard.rec .sc-status{color:#1a56c4}
+.carousel{position:relative;display:flex;align-items:stretch;gap:8px}
+.charcards{display:flex;gap:12px;overflow-x:auto;scroll-behavior:smooth;flex:1;padding-bottom:4px;scrollbar-width:thin}
+.charcards::-webkit-scrollbar{height:7px}
+.charcards::-webkit-scrollbar-thumb{background:#dcdce2;border-radius:4px}
+.car-btn{flex:0 0 auto;align-self:center;width:32px;height:32px;border-radius:50%;border:1px solid #d4d4da;background:#fff;font-size:17px;line-height:1;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center}
+.car-btn:hover{background:#f0f0f2}
+.ccard{flex:0 0 214px;border:1px solid #e6e6ea;border-radius:12px;padding:13px 14px;background:#fff;display:flex;flex-direction:column}
+.ccard .cc-name{font-size:16px;font-weight:800}
+.ccard .cc-arch{font-size:12px;color:#8a8a90;margin-bottom:6px}
+.ccard .cc-row{border-top:1px solid #f0f0f2;padding:7px 0}
+.ccard .cc-k{font-size:10.5px;color:#8a8a90;font-weight:700;letter-spacing:.03em}
+.ccard .cc-v{font-size:13px;font-weight:600;margin-top:1px}
+.ccard .cc-next{color:#1a56c4}
+.ccard .cc-btns{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap}
+.ep-name{font-size:12px;line-height:1.4;color:#3a3a40}
+.ep-t{font-size:12.5px;line-height:1.3}
+.ep-act{white-space:nowrap;flex:0 0 auto}
+.epgrp{margin-bottom:12px}
+.epgrp-h{font-size:12.5px;font-weight:700;margin-bottom:6px}
+.ep-row2{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:7px 10px;border:1px solid #eceef2;border-radius:8px;margin-bottom:6px;background:#fff}
+/* 생성폼 위저드 (캐릭터 5-STEP · 에피소드 3-STEP→초안) */
+.wizhead{font-size:16px;font-weight:800;margin:2px 0 14px}
+.step,.qc{border:1px solid #ececf0;border-radius:10px;padding:12px 13px;margin-bottom:10px;background:#fff}
+.steptit,.qt{font-weight:700;font-size:13.5px;display:flex;align-items:center;gap:7px}
+.stepno,.qn{background:#1c1c1e;color:#fff;font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px}
+.stepq{color:#8a8a90;font-size:12px;margin:4px 0 8px}
+.airec{background:#f4f0ff;border:1px solid #e3dbfb;border-radius:8px;padding:8px 10px;margin-top:8px;font-size:12.5px}
+button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;border-color:#d9cdf7;color:#6d28d9}
+.advbox{border:1px dashed #d9d9e0;border-radius:10px;padding:2px 12px;margin-bottom:6px;background:#fafafb}
+.advbox summary{cursor:pointer;font-size:12px;color:#6b6b70;font-weight:600;padding:8px 0}
+.draftout{border:1px solid #e3dbfb;background:#fdfcff}
+.beat{display:flex;gap:8px;align-items:flex-start;margin-bottom:7px}
+.beat .bk{flex:0 0 70px;font-size:11px;font-weight:700;color:#6d28d9;background:#f4f0ff;border:1px solid #e3dbfb;border-radius:6px;padding:6px 4px;text-align:center;margin-top:3px}
+.beat textarea{margin-top:0}
+/* ===== 메인스토리 트리 뷰 (ms- 네임스페이스) ===== */
+.ms-tree{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.7}
+.ms-tree ul{list-style:none;margin:0;padding-left:18px}
+.ms-tree>ul{padding-left:2px}
+.ms-tree li{position:relative;padding-left:14px}
+.ms-tree li::before{content:"├─";position:absolute;left:-4px;color:#c3c3cc}
+.ms-tree li:last-child::before{content:"└─"}
+.ms-tree ul ul{border-left:1px dashed #e3e3ea;margin-left:2px}
+.ms-tk{color:#6d28d9;font-weight:700}
+.ms-tv{color:#1c1c1e}
+.ms-tv.num{color:#0891b2}
+.ms-tv.null{color:#b0b0b8;font-style:italic}
+.ms-tnode{color:#137a3d;font-weight:700}
+.ms-badge{display:inline-block;font-size:11px;background:#eef7f0;color:#137a3d;border:1px solid #d4ead9;border-radius:999px;padding:0 7px;margin-left:4px}
+.ms-story{border:1px solid #e6e6ea;border-radius:10px;padding:8px 12px;margin-bottom:8px;background:#fff}
+.ms-story>summary{cursor:pointer;list-style:none;font-weight:800;font-size:14px}
+.ms-story>summary::-webkit-details-marker{display:none}
+.ms-story>summary::before{content:"▸ ";color:#8a8a90;font-size:11px}
+.ms-story[open]>summary::before{content:"▾ "}
+.ms-tree li>details{display:inline}
+.ms-tree li>details>summary{display:inline;cursor:pointer;list-style:none}
+.ms-tree li>details>summary::-webkit-details-marker{display:none}
+.ms-tree li>details>summary::before{content:"▸ ";color:#8a8a90;font-size:10px}
+.ms-tree li>details[open]>summary::before{content:"▾ "}
+</style>
+</head>
+<body>
+
+<!-- 레이아웃 쉘: 로그인(게이트) 화면 제외, 로그인 이후 #app 화면만. 실제 데이터/OAuth/Drive 로직은 없음(빈 상태). -->
+<div class="shellbar"><div class="note info">📐 <b>레이아웃 쉘</b> — 로그인 이후 화면 구조만 보여주는 정적 미리보기입니다. 로그인·Drive 데이터·저장 기능은 없고 모든 영역은 빈 상태로 표시됩니다. 탭 전환만 동작합니다.</div></div>
+
+<div class="wrap" id="app">
+  <h1>숏폼 드라마 기획 — 구조 대시보드</h1>
+  <div class="sub">Google Drive · <b id="rootName">기획-v1</b> · <span id="who">user@example.com</span>
+    <button class="mini" onclick="demo()">↻ 새로고침</button>
+    <button class="mini" onclick="demo()">로그아웃</button>
+    <button class="mini del" onclick="demo()" title="세계관·캐릭터·스토리·에피소드·스토리보드 전부 삭제(규칙엔진 유지)">🧹 초기화</button> <span id="status"></span></div>
+
+  <details class="card" id="aiCard" style="padding:12px">
+    <summary style="cursor:pointer;font-weight:700">🤖 AI 설정 <span class="muted" style="font-weight:400">— OpenAI 키로 초안 자동생성</span></summary>
+    <div class="note info" style="margin:8px 0">키는 <b>이 브라우저에만</b> 저장되고(localStorage) 서버로 전송되지 않습니다. 공개 사이트에 노출되지 않아요.</div>
+    <label>OpenAI API 키 <input id="ai_key" type="password" placeholder="sk-..." autocomplete="off"></label>
+    <label>모델 <select id="ai_model">
+      <option value="gpt-4o-mini">gpt-4o-mini (빠르고 저렴)</option>
+      <option value="gpt-4o">gpt-4o (고품질)</option>
+      <option value="gpt-4.1-mini">gpt-4.1-mini</option>
+    </select></label>
+    <div style="margin-top:10px"><button class="mini primary" onclick="demo()">저장</button> <button class="mini" onclick="demo()">키 삭제</button> <span id="ai_cfgmsg" class="k"></span></div>
+    <div class="k" style="margin-top:6px">키 발급: platform.openai.com/api-keys · 사용 요금은 본인 OpenAI 계정에 청구됩니다.</div>
+  </details>
+
+  <div class="card">
+    <h2>🌐 고정 상수 <span class="muted">— 세계관·여주 (통제변수 · 각 1개)</span></h2>
+    <div class="fixedrow">
+      <div class="fx"><span class="badge b-fixed">세계관 고정</span>
+        <div style="margin-top:6px"><b id="fx-world-name">고등학교</b> <span class="k" id="fx-world-id">world_highschool</span></div>
+        <div class="muted" id="fx-world-tone">풋풋하지만 텐션 높은 명문고 청춘 로맨스 — 01_세계관.json</div></div>
+      <div class="fx"><span class="badge b-fixed">여주 고정</span>
+        <div style="margin-top:6px"><b id="fx-heroine-name">하린</b> <span class="k" id="fx-heroine-id">heroine_harin</span></div>
+        <div class="muted" id="fx-heroine-role">모든 남캐의 고정 상대역 — 02_여주.json</div></div>
+    </div>
+    <div class="legend">입력폼: <b>_고정설정_템플릿.json</b> (world/heroine 두 블록). 최초 1회 세팅 후 거의 안 바뀜.</div>
+  </div>
+
+  <div class="card" id="kpiCard">
+    <div id="todo" class="todo"></div>
+    <h2>📊 현황 <span class="muted" style="font-weight:400">— 발행 DB 기준</span></h2>
+    <div style="display:flex;flex-wrap:wrap;gap:10px">
+      <div class="kpi" style="border-left:4px solid #1a56c4"><div class="k">현재 캐릭터(남캐)</div><div class="kv"><span id="kpi-chars">12</span><span class="ku">명</span></div></div>
+      <div class="kpi" style="border-left:4px solid #0891b2"><div class="k">발행 에피소드</div><div class="kv"><span id="kpi-eps">5</span><span class="ku">화</span></div></div>
+    </div>
+    <div class="legend">※ 성과 측정·IP 후보 선정은 <b>후순위(보류)</b>로 지금 화면엔 없음.</div>
+  </div>
+
+  <div class="card">
+    <h2>🔗 관계성 <span class="muted">자동 생성(_relations.json) · 텍스트·숫자형</span></h2>
+    <div id="relSummary" class="muted" style="margin-bottom:8px">발행된 캐릭터가 쌓이면 여기 관계성 요약(숫자)이 자동 계산됩니다.
+      <span class="k">예) 남캐 3명 → 하린 · 평균 1.3화/명 · 트리거 겹침 0 · 라이벌쌍 1</span></div>
+    <table id="relTable">
+      <thead><tr><th>캐릭터</th><th>트리거</th><th>에피소드</th><th>상대(여주)</th><th>라이벌</th><th>같은 트리거</th></tr></thead>
+      <tbody><tr><td colspan="6" class="muted">아직 없음. 캐릭터·에피소드를 발행하면 행이 자동으로 채워집니다.</td></tr></tbody>
+    </table>
+    <div class="legend">캐릭터 + 에피소드 + tension_partner에서 자동 도출(build_relations.py). 노드 그래프 대신 표·숫자로 표시.</div>
+  </div>
+
+  <details class="card" id="storyCard" open>
+    <summary style="cursor:pointer;font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px">📖 메인스토리 <span class="muted" style="font-weight:400">자동 요약 — 캐릭터+에피소드에서 파생(_story.json) · 클릭해서 접기/펼치기</span></summary>
+    <div id="wiki" style="margin-top:10px"><div class="muted">캐릭터에 에피소드가 쌓이면 여기 메인스토리가 자동 요약됩니다. (수동 입력 아님)</div></div>
+  </details>
+
+  <div class="card">
+    <h2>🎭 발행된 캐릭터</h2>
+    <div id="pubList"><div class="muted">발행된 캐릭터가 없습니다. 드래프트를 발행하면 여기 나옵니다.</div></div>
+  </div>
+
+  <div class="card">
+    <h2>▶ 에피소드 <span class="muted">캐릭터별 발행 에피소드 — ✏ 수정 · 🗑 삭제</span></h2>
+    <label>캐릭터 선택 <select id="epFilter" onchange="renderEpList()"></select></label>
+    <div id="epList" style="margin-top:10px"></div>
+  </div>
+
+  <div class="grid">
+    <div>
+      <div class="card">
+        <div class="tabs">
+          <button data-tab="drafts" class="active">📥 드래프트함</button>
+          <button data-tab="addChar">＋ 캐릭터(남캐)</button>
+          <button data-tab="addEp">＋ 에피소드</button>
+        </div>
+
+        <div id="tab-drafts">
+          <div class="note info">여기 있는 건 아직 <b>드래프트</b>(DB 아님). 다듬은 뒤 <b>발행</b>하면 지도·요약에 올라갑니다.</div>
+          <div id="drafts" style="margin-top:8px"><div class="muted">드래프트가 없습니다. 아래 탭에서 만들면 여기 쌓이고, 발행하면 DB(지도)로 올라갑니다.</div></div>
+        </div>
+
+        <div id="tab-addChar" class="hidden">
+          <div class="wizhead">🧑‍🎤 새 남캐 만들기 <span class="k" style="font-weight:400">— STEP만 정하면 AI가 나머지를 생성 (세계관·여주 고정)</span></div>
+
+          <div style="margin:0 0 12px"><button class="primary" style="width:100%;padding:12px;background:#6d28d9;border-color:#6d28d9" onclick="autoChar()">🎲 AI에게 통째로 맡기기 — 캐릭터 한 번에 생성</button>
+            <div class="k" style="margin-top:5px;text-align:center">아무것도 안 골라도 규칙_최신 성과 기준으로 AI가 캐릭터 전체를 채웁니다. 아래에서 바로 수정하세요.</div></div>
+
+          <div class="step">
+            <div class="steptit"><span class="stepno">STEP 1</span> 목표</div>
+            <div class="stepq">무슨 반응을 만들 캐릭터인가?</div>
+            <select id="c_goal">
+              <option value="">(선택)</option><option>설렘</option><option>저장유도</option><option>댓글유도</option></select>
+            <div class="airec">🤖 <b>AI 추천</b> — "위기구원 + 얼음 회장형" 조합 <span class="k">(recommend.py · method=rule)</span>
+              <div style="margin-top:5px"><span class="k">데이터 칩 — 숫자·규칙엔진 고정(환각 불가)</span><br>
+                <span class="chip data">성과 상위 30%</span><span class="chip data">검증 표본 충분(n=14)</span><span class="chip warn">⚠ 저장률 baseline 미만</span></div>
+              <div style="margin-top:5px"><span class="k">판단 칩 — 트리거 선택·궁합 (어휘표 내, 3개 이하)</span><br>
+                <span class="chip">몰입도 상위권</span><span class="chip">아키타입 궁합 좋음</span><span class="chip">덜 사용된 트리거</span></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="steptit"><span class="stepno">STEP 2</span> 핵심 트리거</div>
+            <div class="stepq">어떤 상황에서 설렘을 만들 것인가?</div>
+            <select id="c_trig">
+              <option value="">(비우면 AI 추천)</option>
+              <option value="protective_claim_or_rescue">위기구원 (② 보호·구원)</option>
+              <option value="jealousy_possession_or_rival">독점욕·질투 (①)</option>
+              <option value="choice_ultimatum_or_deadline">직진·최후통첩 (④)</option>
+              <option value="love_confession_or_desire">고백·욕망</option>
+              <option value="emotional_question_or_confrontation">감정추궁·대립</option>
+              <option value="misunderstanding_or_accusation">오해·누명</option>
+              <option value="threat_danger_or_revenge">위협·위험·복수</option>
+              <option value="power_money_or_status">재력·권력</option>
+              <option value="secret_lie_or_reveal">비밀·폭로</option></select>
+          </div>
+
+          <div class="step">
+            <div class="steptit"><span class="stepno">STEP 3</span> 남캐 타입</div>
+            <div class="stepq">이 캐릭터의 기본 매력 방향</div>
+            <select id="c_arch">
+              <option value="">(비우면 AI 추천)</option>
+              <option>얼음 회장형</option><option>다정한 소꿉친구</option><option>나쁜남자·일진</option>
+              <option>열혈 직진남</option><option>미스터리 전학생</option><option>기타</option></select>
+          </div>
+
+          <div class="step">
+            <div class="steptit"><span class="stepno">STEP 4</span> 매력 포인트 (겉과 속의 갭)
+              <button class="mini regen" onclick="toast('AI로 다시 생성 (데모)')">✨ AI로 다시 생성</button></div>
+            <div class="stepq">갭 / 직진성 / 위험성 / 보호욕 등</div>
+            <div class="row2">
+              <label>겉 (강함) <input id="c_gs" placeholder="차갑고 무심함"></label>
+              <label>속 (약함) <input id="c_gh" placeholder="여주 위험엔 가장 먼저 움직임"></label>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="steptit"><span class="stepno">STEP 5</span> 첫 등장 장면
+              <button class="mini regen" onclick="toast('AI로 다시 생성 (데모)')">✨ AI로 다시 생성</button></div>
+            <div class="stepq">첫 3초에 어떻게 각인시킬 것인가? (얼굴만 X — 관계 갈등 단서)</div>
+            <textarea id="c_hook" placeholder="넘어지는 순간, 말없이 손목을 잡아 세운다."></textarea>
+          </div>
+
+          <details class="advbox">
+            <summary>상세 항목 (선택) — 비우면 AI가 채웁니다</summary>
+            <div class="row2"><label>이름 <input id="c_name"></label><label>ID <input id="c_id" placeholder="char_dowoon"></label></div>
+            <label>2차 상황(보조 트리거) <select id="c_trig2">
+              <option value="">(없음)</option>
+              <option value="love_confession_or_desire">고백·욕망</option>
+              <option value="jealousy_possession_or_rival">독점욕·질투</option>
+              <option value="protective_claim_or_rescue">위기구원</option>
+              <option value="choice_ultimatum_or_deadline">직진·최후통첩</option></select></label>
+            <label>시그니처 행동 <input id="c_sig"></label>
+            <div class="row2"><label>텐션 상대 <input id="c_tp"></label><label>금기·장벽 <input id="c_taboo"></label></div>
+          </details>
+
+          <div style="margin-top:12px"><button class="primary" style="width:100%;padding:12px" onclick="toast('남캐 생성 (데모)')">남캐 생성</button></div>
+        </div>
+
+        <div id="tab-addEp" class="hidden">
+          <div class="wizhead">🎬 새 에피소드 만들기 <span class="k" style="font-weight:400">— 3가지만 고르면 AI가 초안을 씁니다</span></div>
+
+          <div style="margin:0 0 12px"><button class="primary" style="width:100%;padding:12px;background:#6d28d9;border-color:#6d28d9" onclick="autoEp()">🎲 AI에게 통째로 맡기기 — 에피소드 한 번에 생성</button>
+            <div class="k" style="margin-top:5px;text-align:center">주인공만 정하거나(또는 비워도) AI가 감정·장면·초안까지 알아서 제안합니다.</div></div>
+
+          <div class="qc"><div class="qt"><span class="qn">STEP 1</span> 주인공 남캐</div>
+            <select id="e_char"><option value="">(선택)</option><option>민재</option><option>서준</option><option>하늘</option></select></div>
+
+          <div class="qc"><div class="qt"><span class="qn">STEP 2</span> 이번 화에서 만들 감정</div>
+            <select id="e_trig">
+              <option value="">(선택)</option>
+              <option value="jealousy_possession_or_rival">질투</option>
+              <option value="protective_claim_or_rescue">위기구원(보호욕)</option>
+              <option value="love_confession_or_desire">설렘·고백</option>
+              <option value="choice_ultimatum_or_deadline">직진·최후통첩</option>
+              <option value="misunderstanding_or_accusation">오해·서운함</option>
+              <option value="threat_danger_or_revenge">위협·긴장</option></select>
+            <div class="airec">🤖 <b>이 감정을 추천하는 이유</b> <span class="k">(recommend.py · method=rule)</span>
+              <div style="margin-top:5px"><span class="k">데이터 칩</span> <span class="chip data">질투 ER 상위(0.454)</span><span class="chip data">주인공 트리거와 일치</span></div>
+              <div style="margin-top:4px"><span class="k">판단 칩</span> <span class="chip">현재 캐릭터와 궁합</span><span class="chip">다음 감정선으로 연결</span></div>
+            </div></div>
+
+          <div class="qc"><div class="qt"><span class="qn">STEP 3</span> 이번 화 핵심 장면</div>
+            <select id="e_core">
+              <option value="">(선택 · 비우면 AI가 감정에 맞춰 제안)</option>
+              <option>다른 남자와 웃는 걸 봄</option>
+              <option>위험한 순간 먼저 손을 뻗음</option>
+              <option>둘만 남은 공간에서 진심이 터짐</option>
+              <option>오해로 멀어졌다 다시 마주침</option></select></div>
+
+          <div style="margin-top:6px"><button class="primary" style="width:100%;padding:12px" onclick="genEp()">✨ AI로 에피소드 생성</button></div>
+
+          <div class="card draftout hidden" id="epDraft" style="margin-top:14px">
+            <h2>📝 에피소드 초안 <span class="muted" style="font-weight:400">— AI 생성 · 바로 수정 가능</span>
+              <button class="mini regen" style="margin-left:auto" onclick="genEp()">✨ 다시 생성</button></h2>
+            <label>한 줄 줄거리 <textarea id="d_log">무심하던 민재가 여주가 다른 남자와 웃는 걸 보고 처음으로 감정을 드러낸다.</textarea></label>
+            <div class="k" style="margin:12px 0 4px;font-weight:700">구성 (HOOK → HOOK-OUT)</div>
+            <div class="beat"><span class="bk">HOOK</span><textarea id="d_hook">"너, 걔랑 그렇게 친했어?"</textarea></div>
+            <div class="beat"><span class="bk">SETUP</span><textarea id="d_setup">여주는 반 친구와 웃으며 복도를 걷는다.</textarea></div>
+            <div class="beat"><span class="bk">BUILD</span><textarea id="d_build">민재는 신경 안 쓰는 척하지만 계속 시선이 따라간다.</textarea></div>
+            <div class="beat"><span class="bk">PAYOFF</span><textarea id="d_payoff">여주가 넘어질 뻔한 순간 민재가 먼저 손목을 잡는다.</textarea></div>
+            <div class="beat"><span class="bk">HOOK-OUT</span><textarea id="d_hookout">"다음부터 내 앞에서 그렇게 웃지 마."</textarea></div>
+            <div style="margin-top:12px;display:flex;gap:8px"><button class="primary" onclick="toast('드래프트로 저장 (데모)')">드래프트로 저장</button><button onclick="document.getElementById('epDraft').classList.add('hidden')">닫기</button></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" id="detailCard" style="display:none">
+        <h2>상세 <button class="mini" style="margin-left:auto" onclick="document.getElementById('detailCard').style.display='none'">닫기</button></h2>
+        <div id="detail" class="detail"></div>
+      </div>
+    </div>
+
+    <div>
+      <div class="card">
+        <h2>📊 현재 규칙 <span class="muted" id="ruleMeta">(규칙 없음)</span></h2>
+        <div id="baseline" class="muted">규칙엔진(00_규칙엔진/규칙_최신.json)이 로드되면 기준선 ER·저장률이 표시됩니다.</div>
+        <div style="margin-top:8px" class="k">트리거 순위</div>
+        <table id="trigTable"><tbody></tbody></table>
+        <div style="margin-top:10px" class="k">로맨스 설정 순위</div>
+        <table id="tropeTable"><tbody></tbody></table>
+        <div style="margin-top:10px" class="k">컷 지표(상위 1/3)</div>
+        <div id="cutMetrics" class="muted">—</div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+/* ===== 레이아웃 쉘 전용 최소 JS =====
+   실제 앱 로직(OAuth/Drive/AI/저장)은 없음. 탭 전환과 스토리보드 10컷 폼 골격만 살림. */
+const FRAMING=["미디엄","클로즈업","전신","인서트"],
+  GAZE=["나를 본다","나를 안 본다","나를 보다가 안 본다","얼굴X"],
+  ANGLE=["아이레벨","로우앵글","하이앵글"],
+  TIMES=["0-3s","3-6s","6-9s","9-12s","12-15s","15-18s","18-21s","21-24s","24-27s","27-30s"];
+function opt(v,t){return `<option value="${v}">${t||v}</option>`;}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
+function demo(){toast('레이아웃 쉘 — 동작 없음(데모)');}
+function genEp(){var d=document.getElementById('epDraft');if(!d)return;d.classList.remove('hidden');toast('AI 초안 생성 (데모)');d.scrollIntoView({behavior:'smooth',block:'nearest'});}
+function setVal(id,v){var e=document.getElementById(id);if(e)e.value=v;}
+/* 캐릭터 통째 AI 추천 — 폼 전체를 데모 값으로 채움 (실앱: recommend.py + LLM 초안) */
+function autoChar(){
+  setVal('c_goal','설렘'); setVal('c_trig','jealousy_possession_or_rival'); setVal('c_arch','얼음 회장형');
+  setVal('c_gs','전교 1등 학생회장, 늘 냉정하고 무심함');
+  setVal('c_gh','여주가 위험할 때만 무너져 가장 먼저 움직임');
+  setVal('c_hook','복도에서 넘어지는 여주를 말없이 붙잡아 세운다');
+  setVal('c_name','도운'); setVal('c_id','char_dowoon'); setVal('c_trig2','love_confession_or_desire');
+  setVal('c_sig','안경을 고쳐쓰며 시선을 피한다');
+  setVal('c_tp','라이벌 학생회 부회장'); setVal('c_taboo','성적 1위 자리를 둔 경쟁 관계');
+  var adv=document.querySelector('#tab-addChar .advbox'); if(adv) adv.open=true;
+  toast('AI가 캐릭터 전체를 추천했어요 (데모) — 수정 후 생성');
+}
+/* 에피소드 통째 AI 추천 — 주인공·감정·장면 자동 선택 후 초안 생성 */
+function autoEp(){
+  setVal('e_char','민재'); setVal('e_trig','jealousy_possession_or_rival'); setVal('e_core','다른 남자와 웃는 걸 봄');
+  genEp();
+}
+function switchTab(tab){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
+  ['drafts','addChar','addEp'].forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.classList.toggle('hidden',t!==tab);});}
+document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
+/* 스토리보드 10컷 폼 골격 */
+(function buildSbForm(){const el=document.getElementById('sbCuts');if(!el)return;let h='';
+  for(let i=0;i<10;i++)h+=`<div style="border:1px solid #eee;border-radius:8px;padding:8px;margin-top:8px"><b>컷 ${i+1}</b> <span class="k">${TIMES[i]}</span><div class="row2"><label>프레이밍<select>${FRAMING.map(v=>opt(v)).join('')}</select></label><label>시선<select>${GAZE.map(v=>opt(v)).join('')}</select></label></div><label>앵글<select>${ANGLE.map(v=>opt(v)).join('')}</select></label><label>[생성] 비트<textarea></textarea></label><label>[후편집] 자막<input value="자막 없음"></label><label>연출의도<input></label></div>`;
+  el.innerHTML=h;})();
+
+/* ===== 오늘 할 일 (규칙 기반 · AI 아님) =====
+   MVP 루프에서 지금 가장 먼저 막힌 작업 1개를 계산해 보여준다.
+   실제 데이터는 전역 CHARS/STORIES/EPS/SBS를 그대로 읽는다(없으면 빈 배열).
+   실앱 연동 시 loadAll()/render 이후 renderTodo()만 호출하면 됨. */
+function _arr(getter){ try{ var v=getter(); return Array.isArray(v)?v:[]; }catch(e){ return []; } }
+function currentChar(CHARS){
+  if(!CHARS.length) return null;
+  var sel = (typeof SELECTED_CHAR!=='undefined') ? CHARS.find(function(c){return c.id===SELECTED_CHAR;}) : null;
+  if(sel) return sel;
+  return CHARS.slice().sort(function(a,b){ return String(b.updated_at||b.created_at||'').localeCompare(String(a.updated_at||a.created_at||'')); })[0];
+}
+function computeSteps(){
+  var cs=_arr(function(){return CHARS;}), ep=_arr(function(){return EPS;});
+  var cur = cs.length ? currentChar(cs) : null;
+  var nEps = cur ? ep.filter(function(e){return e.character_id===cur.id;}).length : 0;
+  var who = cur ? (cur.name||'캐릭터') : '';
+  var steps=[
+    {t:'남주 캐릭터 만들기', tab:'addChar', done: cs.length>0,
+     why: cs.length>0 ? ('캐릭터 '+cs.length+'명 등록됨. 새 남주를 더 실험할 수 있어요.')
+                      : '실험의 주인공. 세계관 안에서 검증할 남주를 먼저 만들어요.'},
+    {t:'에피소드 만들기', tab:'addEp', done: nEps>=3,
+     why: (cur ? (who+' 에피소드 '+nEps+'/3. ') : '') + '캐릭터가 먹히는지 보려면 에피소드 3개가 필요해요.'}
+  ];
+  var recIdx=-1;
+  for(var i=0;i<steps.length;i++){ if(!steps[i].done){ recIdx=i; break; } }
+  return {steps:steps, recIdx:recIdx};
+}
+function renderTodo(){
+  var el=document.getElementById('todo'); if(!el) return;
+  var r=computeSteps(), steps=r.steps, recIdx=r.recIdx, allDone=(recIdx===-1);
+  var head = allDone ? '오늘 할 일 — ✅ 모든 단계 완료, 발행 준비 완료'
+                     : '오늘 할 일 — 원하는 단계를 골라 진행하세요';
+  var html='<div class="lab">'+head+'</div><div class="stepcards">';
+  for(var i=0;i<steps.length;i++){
+    var s=steps[i], cls = s.done?'done':(i===recIdx?'rec':'');
+    var status = s.done?'완료 ✓':(i===recIdx?'지금 추천':'대기');
+    var btnLabel = s.done?'＋ 더 추가':'만들기';
+    var btnCls = (i===recIdx)?'mini primary':'mini';
+    html+='<div class="stepcard '+cls+'">'
+      +'<div class="sc-top"><span class="sc-num">'+(s.done?'✓':(i+1))+'</span><span class="sc-status">'+status+'</span></div>'
+      +'<div class="sc-title">'+s.t+'</div>'
+      +'<div class="sc-why">'+s.why+'</div>'
+      +'<button class="'+btnCls+'" onclick="switchTab(\''+s.tab+'\')">'+btnLabel+'</button>'
+      +'</div>';
+  }
+  html+='</div>';
+  el.className='todo';
+  el.innerHTML=html;
+}
+renderTodo();
+
+/* ===== 발행된 캐릭터 카드 목록 =====
+   실앱: 전역 CHARS/EPS에서 렌더. 빈 쉘: DEMO_CHARS로 미리보기.
+   실앱 연동 시 render 파이프라인에서 renderPubList() 호출. */
+var TRIG={jealousy_possession_or_rival:'독점욕·질투',protective_claim_or_rescue:'위기구원',breakup_rejection_or_distance:'이별·거리',choice_ultimatum_or_deadline:'직진·최후통첩',love_confession_or_desire:'고백·욕망',threat_danger_or_revenge:'위협·복수',marriage_family_or_pregnancy:'결혼·가족',general_dialogue:'일반대화',humiliation_status_drop_or_bullying:'굴욕·따돌림',misunderstanding_or_accusation:'오해·누명',power_money_or_status:'권력·재력',emotional_question_or_confrontation:'감정추궁·대립',secret_lie_or_reveal:'비밀·폭로',apology_regret_or_sacrifice:'사과·희생'};
+function trigLabel(t){ return TRIG[t]||t||''; }
+var DEMO_CHARS=[
+  {name:'민재', archetype:'얼음 회장형', primary:'위기구원', secondary:'독점욕', goal:'설렘',
+   gs:'전교 1등 학생회장, 늘 냉정', gh:'여주 위험엔 먼저 움직임', hook:'넘어지는 여주를 말없이 붙잡는다',
+   eps:[{title:'질투의 시작', trig:'질투', why:'질투 ER 상위(0.454) · 주인공 트리거 일치'},{title:'복도의 손목', trig:'위기구원', why:'저장률 상위 · 다음 감정선 연결'},{title:'둘만의 도서관', trig:'고백', why:'감정 정점 회수'}]},
+  {name:'서준', archetype:'얼음 회장님', primary:'독점욕·질투', secondary:'고백·욕망', goal:'설렘',
+   gs:'차가운 학생회 부회장', gh:'여주 앞에서만 말이 많아짐', hook:'우산을 던지듯 건넨다',
+   eps:[{title:'라이벌 등장', trig:'질투', why:'질투 ER 상위 · 라이벌 투입 궁합'}]},
+  {name:'하늘', archetype:'다정한 소꿉친구', primary:'위기구원', secondary:'고백·욕망', goal:'저장유도',
+   gs:'늘 웃는 소꿉친구', gh:'질투 앞에선 서툴러짐', hook:'',
+   eps:[]}
+];
+function pubData(){
+  var cs=_arr(function(){return CHARS;});
+  if(!cs.length) return DEMO_CHARS;
+  var eps=_arr(function(){return EPS;});
+  return cs.map(function(c){
+    var ce=eps.filter(function(e){return e.character_id===c.id;});
+    return {name:c.name||c.id, archetype:c.archetype||'',
+      primary:trigLabel(c.primary_trigger), secondary:trigLabel(c.secondary_trigger),
+      goal:c.goal||'', gs:c.gap_surface||'', gh:c.gap_hidden||'', hook:c.first3s_hook||'',
+      eps:ce.map(function(e){return {title:e.title||e.id, trig:trigLabel(e.target_trigger), why:((e.recommendation&&e.recommendation.reasons)?e.recommendation.reasons.join(' · '):'')};})};
+  });
+}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function renderPubList(){
+  var el=document.getElementById('pubList'); if(!el) return;
+  var list=pubData();
+  if(!list.length){ el.innerHTML='<div class="muted">발행된 캐릭터가 없습니다. 드래프트를 발행하면 여기 나옵니다.</div>'; return; }
+  var h='<div class="carousel"><button class="car-btn" onclick="scrollChars(-1)" aria-label="이전">‹</button><div class="charcards" id="charTrack">';
+  list.forEach(function(c,ci){
+    var epsHtml='';
+    if(c.eps&&c.eps.length){
+      c.eps.forEach(function(e){
+        epsHtml+='<div class="ep-name">▶ '+esc(e.title)+'</div>';
+      });
+    } else { epsHtml='<div class="k">아직 에피소드 없음</div>'; }
+    h+='<div class="ccard">'
+      +'<div class="cc-name">'+esc(c.name)+'</div>'
+      +'<div class="cc-arch">'+esc(c.archetype||'')+'</div>'
+      +'<div class="cc-row"><div class="cc-k">트리거</div><div class="cc-v">'+esc(c.primary)+(c.secondary?' / '+esc(c.secondary):'')+'</div></div>'
+      +'<div class="cc-row"><div class="cc-k">에피소드 '+(c.eps?c.eps.length:0)+'개</div><div class="cc-v">'+epsHtml+'</div></div>'
+      +'<div class="cc-btns"><button class="mini primary" onclick="switchTab(\'addEp\')">＋에피소드</button>'
+      +'<button class="mini" onclick="editChar('+ci+')">✏ 수정</button>'
+      +'<button class="mini del" onclick="delChar('+ci+')">🗑 삭제</button></div>'
+      +'</div>';
+  });
+  h+='</div><button class="car-btn" onclick="scrollChars(1)" aria-label="다음">›</button></div>';
+  el.innerHTML=h;
+}
+function editChar(ci){var c=pubData()[ci]; if(!c)return; switchTab('addChar');
+  setVal('c_name',c.name); setVal('c_arch',c.archetype); setVal('c_goal',c.goal||'');
+  setVal('c_gs',c.gs||''); setVal('c_gh',c.gh||''); setVal('c_hook',c.hook||'');
+  var adv=document.querySelector('#tab-addChar .advbox'); if(adv) adv.open=true;
+  toast('"'+c.name+'" 수정 모드로 불러왔어요 (데모)');
+  document.getElementById('tab-addChar').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function delChar(ci){var list=pubData(); var c=list[ci]; if(!c)return;
+  if(!confirm('캐릭터 "'+c.name+'"'+(c.eps&&c.eps.length?' 와 에피소드 '+c.eps.length+'개':'')+'를 삭제할까요? 되돌릴 수 없습니다.')) return;
+  list.splice(ci,1); renderPubList(); fillEpFilter(); renderEpList(); toast('"'+c.name+'" 삭제됨 (데모)');
+}
+function editEp(ci,ei){var c=pubData()[ci]; if(!c||!c.eps[ei])return; switchTab('addEp');
+  setVal('e_char',c.name); toast('"'+c.eps[ei].title+'" 수정 모드로 불러왔어요 (데모)');
+  document.getElementById('tab-addEp').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function delEp(ci,ei){var c=pubData()[ci]; if(!c||!c.eps[ei])return;
+  if(!confirm('에피소드 "'+c.eps[ei].title+'"를 삭제할까요?')) return;
+  c.eps.splice(ei,1); renderPubList(); renderEpList(); fillEpFilter(); toast('에피소드 삭제됨 (데모)');
+}
+function scrollChars(dir){ var t=document.getElementById('charTrack'); if(!t) return; t.scrollBy({left:dir*Math.max(226, t.clientWidth*0.8), behavior:'smooth'}); }
+/* ===== 에피소드 항목 (캐릭터별 · 드롭다운 필터) ===== */
+function fillEpFilter(){
+  var sel=document.getElementById('epFilter'); if(!sel) return;
+  var list=pubData(); var cur=sel.value||'__all';
+  var h='<option value="__all">전체 캐릭터</option>';
+  list.forEach(function(c,ci){ h+='<option value="'+ci+'">'+esc(c.name)+' ('+(c.eps?c.eps.length:0)+'화)</option>'; });
+  sel.innerHTML=h;
+  if(cur!=='__all' && !list[cur]) cur='__all';
+  sel.value=cur;
+}
+function renderEpList(){
+  var el=document.getElementById('epList'); if(!el) return;
+  var sel=document.getElementById('epFilter'); var val=sel?sel.value:'__all';
+  var list=pubData(); var h='';
+  list.forEach(function(c,ci){
+    if(val!=='__all' && String(ci)!==String(val)) return;
+    h+='<div class="epgrp"><div class="epgrp-h">🎭 '+esc(c.name)+' <span class="k" style="font-weight:400">'+esc(c.archetype||'')+'</span></div>';
+    if(c.eps&&c.eps.length){
+      c.eps.forEach(function(e,ei){
+        h+='<div class="ep-row2"><span class="ep-t">▶ '+esc(e.title)+(e.trig?' <span class="k">('+esc(e.trig)+')</span>':'')
+          +(e.why?'<br><span class="k">🤖 추천 이유: '+esc(e.why)+'</span>':'')+'</span>'
+          +'<span class="ep-act"><button class="mini" onclick="editEp('+ci+','+ei+')">✏ 수정</button> '
+          +'<button class="mini del" onclick="delEp('+ci+','+ei+')">🗑 삭제</button></span></div>';
+      });
+    } else { h+='<div class="k" style="padding:4px 0">발행된 에피소드가 없습니다. ＋에피소드 탭에서 만들어 발행하세요.</div>'; }
+    h+='</div>';
+  });
+  el.innerHTML=h||'<div class="muted">캐릭터가 없습니다.</div>';
+}
+renderPubList(); fillEpFilter(); renderEpList();
+/* ===== 메인스토리 트리 렌더러 (격리 IIFE · 기존 코드와 충돌 없음) =====
+   실앱: window.renderMainstory(각 캐릭터 _story.json 배열) 호출.
+   빈 쉘: 아래 SAMPLE로 #wiki 채움. */
+(function(){
+  var FIELD_LABEL={character_id:"캐릭터",central_trigger:"중심 트리거",logline:"로그라인",
+    n_episodes:"화수",arc:"에피소드",title:"제목",episode_id:"에피소드 ID",
+    target_trigger:"트리거",goal:"목표",emotion_shift:"감정 변화",core_event:"핵심 사건",
+    label:"라벨","for":"대상",reasons:"이유"};
+  var HIDDEN={character_id:1,summary_method:1,model:1,prompt_version:1,generated_at:1,method:1};
+  function kl(k){return FIELD_LABEL[k]||k;}
+  function esc(s){return String(s==null?'':s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+  function vh(v){
+    if(v===null||v===undefined) return '<span class="ms-tv null">null</span>';
+    if(typeof v==='number') return '<span class="ms-tv num">'+v+'</span>';
+    return '<span class="ms-tv">'+esc(v)+'</span>';
+  }
+  function vis(o){return Object.keys(o).filter(function(k){return !k.startsWith('_')&&!HIDDEN[k];});}
+  function node(key,val){
+    var lbl=kl(key);
+    if(Array.isArray(val)){
+      var inner=val.map(function(item,i){
+        if(item&&typeof item==='object'){
+          var head=item.title||item.episode_id||('['+(i+1)+']');
+          var sub='<ul>';
+          vis(item).filter(function(k){return k!=='title';}).forEach(function(k){
+            sub+='<li><span class="ms-tk">'+esc(kl(k))+'</span>: '+vh(item[k])+'</li>';
+          });
+          sub+='</ul>';
+          return '<li><details open><summary><span class="ms-tnode">'+esc(head)+'</span></summary>'+sub+'</details></li>';
+        }
+        return '<li>'+vh(item)+'</li>';
+      }).join('');
+      return '<li><details open><summary><span class="ms-tnode">'+esc(lbl)+'</span> <span class="ms-badge">'+val.length+'</span></summary><ul>'+inner+'</ul></details></li>';
+    }
+    if(val&&typeof val==='object'){
+      var s='<ul>'; vis(val).forEach(function(k){s+=node(k,val[k]);}); s+='</ul>';
+      return '<li><span class="ms-tnode">'+esc(lbl)+'</span>'+s+'</li>';
+    }
+    var disp=(key==='n_episodes')?(val+'화'):val;
+    return '<li><span class="ms-tk">'+esc(lbl)+'</span>: '+vh(disp)+'</li>';
+  }
+  function renderOne(story){
+    var title=story.title||story.character_id||'메인스토리';
+    var h='<details class="ms-story" open><summary>📖 '+esc(title)+'</summary><div class="ms-tree" style="margin-top:8px"><ul>';
+    vis(story).filter(function(k){return k!=='title';}).forEach(function(k){h+=node(k,story[k]);});
+    h+='</ul></div></details>';
+    return h;
+  }
+  window.renderMainstory=function(list){
+    var el=document.getElementById('wiki'); if(!el) return;
+    if(!list||!list.length){ el.innerHTML='<div class="muted">캐릭터에 에피소드가 쌓이면 여기 메인스토리가 자동 요약됩니다.</div>'; return; }
+    el.innerHTML=list.map(renderOne).join('');
+  };
+  var SAMPLE=[
+    {character_id:"char_seojun",title:"서준 — ① 독점욕·질투",central_trigger:"① 독점욕·질투",
+     logline:"얼음 회장님 '서준'이(가) 하린을(를) 두고 '① 독점욕·질투' 트리거를 회수하는 2부작 시리즈.",
+     n_episodes:2,summary_method:"rule",
+     arc:[{episode_id:"ep_01",title:"쟤 건드리지 마",logline:"복도에서 라이벌 도윤이 하린에게 집적대자, 무표정한 학생회장 서준이 처음으로 규정을 깨고 소유욕을 드러낸다."},
+          {episode_id:"ep_02",title:"너, 오늘 나랑 가자",logline:"축제 파트너를 정하는 마감 직전, 서준이 규정을 어기고 하린 앞에 손을 내민다."}]},
+    {character_id:"char_haneul",title:"하늘 — ② 위기구원",central_trigger:"② 위기구원",
+     logline:"다정한 소꿉친구 '하늘'이(가) 하린을(를) 두고 '② 위기구원' 트리거를 회수하는 1부작 시리즈.",
+     n_episodes:1,summary_method:"rule",
+     arc:[{episode_id:"ep_01",title:"안 다쳤지?",logline:"체육대회에서 하린이 사고를 당할 뻔한 0.5초, 늘 웃던 소꿉친구 하늘의 눈빛이 처음으로 바뀐다."}]}
+  ];
+  window.renderMainstory(SAMPLE);
+})();
+</script>
+</body>
+</html>

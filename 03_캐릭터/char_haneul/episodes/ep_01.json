@@ -1,0 +1,42 @@
+{
+  "id": "ep_01",
+  "character_id": "char_haneul",
+  "goal": "",
+  "title": "안 다쳤지?",
+  "target_trigger": "protective_claim_or_rescue",
+  "emotion_shift": "",
+  "core_event": "",
+  "logline": "체육대회에서 하린이 사고를 당할 뻔한 0.5초, 늘 웃던 소꿉친구 하늘의 눈빛이 처음으로 바뀐다.",
+  "recommendation": {
+    "for": "target_trigger",
+    "label": "② 위기구원",
+    "reasons": [
+      "현재 캐릭터와 궁합이 좋음 (하늘 주 트리거와 일치)",
+      "저장률 최상위 트리거",
+      "갭(늘 웃음 ↔ 위기 때 돌변)과 맞물림"
+    ]
+  },
+  "beats": {
+    "HOOK": "0-3초: 굴러오는 구조물, 하늘의 팔이 프레임인해 하린을 막는다. \"안 다쳤지?\"",
+    "SETUP": "3-12초: 하늘은 늘 웃는 동네 오빠. 아무도 그의 진심을 모른다.",
+    "BUILD": "12-30초: 위험이 지나가도 하늘의 낮아진 목소리와 굳은 눈빛이 안 풀린다.",
+    "PAYOFF": "30-45초: \"…너 다치는 거, 나 그거 못 봐.\" 평소와 다른 그.",
+    "HOOKOUT": "마지막 3초: 멀리서 보던 서준. \"쟤가 왜 저래.\""
+  },
+  "storyboard": null,
+  "judge_score": null,
+  "status": "published",
+  "published_at": null,
+  "metrics": {
+    "views": 132000,
+    "likes": 19000,
+    "comments": 2600,
+    "shares": 3300,
+    "saves": 7100,
+    "duration_s": 31,
+    "er_pct": 0.71,
+    "save_rate_pct": 0.47
+  },
+  "created_at": "2026-07-03",
+  "updated_at": "2026-07-03"
+}

@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>메인스토리 트리 뷰 (미리보기 · app-shell 미반영)</title>
+<style>
+:root{color-scheme:light}
+body{margin:0;background:#f7f7f8;color:#1c1c1e;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:14px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding:20px}
+.card{background:#fff;border:1px solid #e6e6ea;border-radius:12px;padding:14px 16px;margin-bottom:14px}
+h2{font-size:14px;margin:0 0 4px}
+.muted{color:#8a8a90;font-size:12px}
+/* ===== 트리 뷰 ===== */
+.tree{font-family:"SF Mono",ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.7;margin-top:8px}
+.tree ul{list-style:none;margin:0;padding-left:18px;position:relative}
+.tree>ul{padding-left:2px}
+.tree li{position:relative;padding-left:14px}
+.tree li::before{content:"├─";position:absolute;left:-4px;color:#c3c3cc}
+.tree li:last-child::before{content:"└─"}
+.tree ul ul{border-left:1px dashed #e3e3ea;margin-left:2px}
+.tk{color:#6d28d9;font-weight:700}              /* key */
+.tv{color:#1c1c1e}                               /* value */
+.tv.num{color:#0891b2}
+.tv.null{color:#b0b0b8;font-style:italic}
+.tnode{color:#137a3d;font-weight:700}           /* object/array 노드명 */
+.badge{display:inline-block;font-size:11px;background:#eef7f0;color:#137a3d;border:1px solid #d4ead9;border-radius:999px;padding:0 7px;margin-left:4px}
+.title{font-size:15px;font-weight:800;margin-bottom:2px}
+details>summary{cursor:pointer;list-style:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"▸ ";color:#8a8a90;font-size:11px}
+details[open]>summary::before{content:"▾ "}
+.tree details{display:inline}
+.tree li>details>summary{display:inline}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>📖 메인스토리 — 트리 뷰 미리보기</h2>
+  <div class="muted">app-shell.html에는 반영 안 함. 이 렌더러(renderStoryTree)와 .tree CSS를 나중에 그대로 붙여넣으면 됨. 각 캐릭터의 <b>_story.json</b>을 그대로 읽어 트리로 그림.</div>
+  <div id="out"></div>
+</div>
+
+<script>
+/* ===== 메인스토리 트리 렌더러 =====
+   _story.json 객체를 스키마 구조처럼 트리로 렌더. `_`-접두사 키는 숨김.
+   실앱: renderStoryTree(각 캐릭터의 _story.json) 호출. */
+/* 필드명 → 한글 표시 라벨. 없는 키는 그대로 노출. */
+var FIELD_LABEL={
+  character_id:"캐릭터", central_trigger:"중심 트리거", logline:"로그라인",
+  n_episodes:"화수", arc:"에피소드", title:"제목",
+  episode_id:"에피소드 ID", target_trigger:"트리거", goal:"목표",
+  emotion_shift:"감정 변화", core_event:"핵심 사건", label:"라벨", for:"대상", reasons:"이유"
+};
+/* 표시 안 할 메타 필드 (숨김) */
+var HIDDEN_KEYS={character_id:1, summary_method:1, model:1, prompt_version:1, generated_at:1, method:1};
+function klabel(k){ return FIELD_LABEL[k]||k; }
+function esc(s){return String(s).replace(/[&<>]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];});}
+function valHtml(v){
+  if(v===null||v===undefined) return '<span class="tv null">null</span>';
+  if(typeof v==='number') return '<span class="tv num">'+v+'</span>';
+  return '<span class="tv">'+esc(v)+'</span>';
+}
+function visibleKeys(obj){
+  return Object.keys(obj).filter(function(k){ return !k.startsWith('_') && !HIDDEN_KEYS[k]; });
+}
+function nodeHtml(key,val){
+  var kl=klabel(key);
+  // 객체/배열이면 노드로, 원시값이면 라벨: 값
+  if(Array.isArray(val)){
+    var inner=val.map(function(item,i){
+      if(item&&typeof item==='object'){
+        // arc[] 원소: 각 에피소드를 접이식(details)으로 — 길어지면 접기
+        var head = item.title||item.episode_id||('['+(i+1)+']');
+        var sub='<ul>';
+        visibleKeys(item).filter(function(k){return k!=='title';}).forEach(function(k){
+          sub+='<li><span class="tk">'+esc(klabel(k))+'</span>: '+valHtml(item[k])+'</li>';
+        });
+        sub+='</ul>';
+        return '<li><details open><summary><span class="tnode">'+esc(head)+'</span></summary>'+sub+'</details></li>';
+      }
+      return '<li>'+valHtml(item)+'</li>';
+    }).join('');
+    // 배열(에피소드) 그룹도 접이식
+    return '<li><details open><summary><span class="tnode">'+esc(kl)+'</span> <span class="badge">'+val.length+'</span></summary><ul>'+inner+'</ul></details></li>';
+  }
+  if(val&&typeof val==='object'){
+    var s='<ul>';
+    visibleKeys(val).forEach(function(k){ s+=nodeHtml(k,val[k]); });
+    s+='</ul>';
+    return '<li><span class="tnode">'+esc(kl)+'</span>'+s+'</li>';
+  }
+  var disp = (key==='n_episodes') ? (val+'화') : val;   // 화수는 '2화'로
+  return '<li><span class="tk">'+esc(kl)+'</span>: '+valHtml(disp)+'</li>';
+}
+function renderStoryTree(story){
+  var title = story.title||story.character_id||'메인스토리';
+  // 캐릭터별 카드 전체를 접이식(details)으로 — 여러 개 쌓여도 접어서 짧게
+  var h='<details class="card" open><summary class="title">📖 '+esc(title)+'</summary>';
+  h+='<div class="tree" style="margin-top:8px"><ul>';
+  visibleKeys(story).filter(function(k){return k!=='title';}).forEach(function(k){
+    h+=nodeHtml(k,story[k]);
+  });
+  h+='</ul></div></details>';
+  return h;
+}
+
+/* ===== 샘플 데이터 (실제로는 _story.json에서 읽음) ===== */
+var SAMPLE=[
+  {
+    character_id:"char_seojun", title:"서준 — ① 독점욕·질투",
+    central_trigger:"jealousy_possession_or_rival",
+    logline:"얼음 회장님 '서준'이(가) 하린을(를) 두고 '① 독점욕·질투' 트리거를 회수하는 2부작 시리즈.",
+    n_episodes:2, summary_method:"rule", model:null, prompt_version:"story_v1",
+    arc:[
+      {episode_id:"ep_01", title:"쟤 건드리지 마", logline:"복도에서 라이벌 도윤이 하린에게 집적대자, 무표정한 학생회장 서준이 처음으로 규정을 깨고 소유욕을 드러낸다."},
+      {episode_id:"ep_02", title:"너, 오늘 나랑 가자", logline:"축제 파트너를 정하는 마감 직전, 서준이 규정을 어기고 하린 앞에 손을 내민다."}
+    ]
+  },
+  {
+    character_id:"char_haneul", title:"하늘 — ② 위기구원",
+    central_trigger:"protective_claim_or_rescue",
+    logline:"다정한 소꿉친구 '하늘'이(가) 하린을(를) 두고 '② 위기구원' 트리거를 회수하는 1부작 시리즈.",
+    n_episodes:1, summary_method:"rule", model:null, prompt_version:"story_v1",
+    arc:[
+      {episode_id:"ep_01", title:"안 다쳤지?", logline:"체육대회에서 하린이 사고를 당할 뻔한 0.5초, 늘 웃던 소꿉친구 하늘의 눈빛이 처음으로 바뀐다."}
+    ]
+  }
+];
+document.getElementById('out').innerHTML = SAMPLE.map(renderStoryTree).join('');
+</script>
+</body>
+</html>

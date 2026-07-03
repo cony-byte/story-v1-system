@@ -1,0 +1,31 @@
+{
+  "id": "char_seojun",
+  "world_id": "world_highschool",
+  "heroine_id": "heroine_harin",
+  "goal": "",
+  "name": "서준",
+  "grade_class": "3학년 1반 · 전교 학생회장",
+  "archetype": "얼음 회장님",
+  "primary_trigger": "jealousy_possession_or_rival",
+  "secondary_trigger": "love_confession_or_desire",
+  "gap_surface": "전교 1등, 학생회장, 누구에게도 안 웃는 완벽주의자",
+  "gap_hidden": "여주 앞에서만 말끝이 흐려지고 귀가 빨개짐",
+  "signature_action": "여주 사물함 위칸에 몰래 우산·정리된 노트를 걸어둠 (여주는 누군지 모름)",
+  "first3s_hook": "복도에서 다른 반 남자애가 여주에게 집적대자, 서준이 여주 어깨를 끌어 뒤로 세우며 낮게: \"쟤 건드리지 마.\"",
+  "tension_partner": "옆 반 실장 도윤",
+  "taboo_barrier": "학생회장은 특정 학생 편애 금지 규정 — 그걸 대놓고 어김",
+  "recommendation": {
+    "for": "primary_trigger",
+    "label": "① 독점욕·질투",
+    "reasons": [
+      "몰입도(ER) 상위권 (14개 트리거 중 3위)",
+      "검증 표본 충분(n=12편)",
+      "'얼음 회장님' 아키타입과 독점욕 트리거 궁합이 좋음",
+      "금기(편애 금지 규정)와 결합해 긴장↑",
+      "⚠ 저장률 baseline 미만 — 저장 유도 장치 필요"
+    ]
+  },
+  "status": "published",
+  "created_at": "2026-07-03",
+  "updated_at": "2026-07-03"
+}

@@ -1,0 +1,277 @@
+{
+  "generated_at": "2026-07-02T19:45:44",
+  "n_videos_total": 100,
+  "n_own_published": 0,
+  "baseline": {
+    "median_er": 0.42,
+    "median_save_rate": 0.34,
+    "median_views": 108250.0
+  },
+  "trigger_ranking_grammar": [
+    {
+      "tag": "breakup_rejection_or_distance",
+      "label": "이별·거절",
+      "n": 5,
+      "median_er": 0.497,
+      "median_save_rate": 0.309,
+      "median_views": 23600.0,
+      "low_sample": false
+    },
+    {
+      "tag": "protective_claim_or_rescue",
+      "label": "② 위기구원",
+      "n": 5,
+      "median_er": 0.496,
+      "median_save_rate": 0.456,
+      "median_views": 100300.0,
+      "low_sample": false
+    },
+    {
+      "tag": "jealousy_possession_or_rival",
+      "label": "① 독점욕·질투",
+      "n": 12,
+      "median_er": 0.454,
+      "median_save_rate": 0.333,
+      "median_views": 65050.0,
+      "low_sample": false
+    },
+    {
+      "tag": "choice_ultimatum_or_deadline",
+      "label": "④ 직진·최후통첩",
+      "n": 10,
+      "median_er": 0.454,
+      "median_save_rate": 0.391,
+      "median_views": 89400.0,
+      "low_sample": false
+    },
+    {
+      "tag": "love_confession_or_desire",
+      "label": "고백·욕망",
+      "n": 12,
+      "median_er": 0.442,
+      "median_save_rate": 0.354,
+      "median_views": 178000.0,
+      "low_sample": false
+    },
+    {
+      "tag": "threat_danger_or_revenge",
+      "label": "위협·위험·복수",
+      "n": 12,
+      "median_er": 0.44,
+      "median_save_rate": 0.319,
+      "median_views": 181400.0,
+      "low_sample": false
+    },
+    {
+      "tag": "marriage_family_or_pregnancy",
+      "label": "결혼·가족·임신",
+      "n": 11,
+      "median_er": 0.41,
+      "median_save_rate": 0.309,
+      "median_views": 212300.0,
+      "low_sample": false
+    },
+    {
+      "tag": "general_dialogue",
+      "label": "일반 대화",
+      "n": 17,
+      "median_er": 0.409,
+      "median_save_rate": 0.319,
+      "median_views": 77000.0,
+      "low_sample": false
+    },
+    {
+      "tag": "humiliation_status_drop_or_bullying",
+      "label": "굴욕·추락·괴롭힘",
+      "n": 6,
+      "median_er": 0.404,
+      "median_save_rate": 0.29,
+      "median_views": 87700.0,
+      "low_sample": false
+    },
+    {
+      "tag": "misunderstanding_or_accusation",
+      "label": "오해·누명",
+      "n": 8,
+      "median_er": 0.404,
+      "median_save_rate": 0.29,
+      "median_views": 34000.0,
+      "low_sample": false
+    },
+    {
+      "tag": "power_money_or_status",
+      "label": "권력·돈·지위",
+      "n": 8,
+      "median_er": 0.396,
+      "median_save_rate": 0.339,
+      "median_views": 198850.0,
+      "low_sample": false
+    },
+    {
+      "tag": "emotional_question_or_confrontation",
+      "label": "감정추궁·대립",
+      "n": 30,
+      "median_er": 0.391,
+      "median_save_rate": 0.319,
+      "median_views": 109550.0,
+      "low_sample": false
+    },
+    {
+      "tag": "secret_lie_or_reveal",
+      "label": "비밀·거짓말·폭로",
+      "n": 5,
+      "median_er": 0.354,
+      "median_save_rate": 0.321,
+      "median_views": 177400.0,
+      "low_sample": false
+    },
+    {
+      "tag": "apology_regret_or_sacrifice",
+      "label": "사과·후회·희생",
+      "n": 7,
+      "median_er": 0.327,
+      "median_save_rate": 0.257,
+      "median_views": 27800.0,
+      "low_sample": false
+    }
+  ],
+  "trope_ranking": [
+    {
+      "tag": "protective_male_or_partner",
+      "label": "② 보호남(설정)",
+      "n": 2,
+      "median_er": 0.998,
+      "median_save_rate": 0.827,
+      "median_views": 142850.0,
+      "low_sample": true
+    },
+    {
+      "tag": "danger_rescue_romance",
+      "label": "② 위기구원(설정)",
+      "n": 4,
+      "median_er": 0.827,
+      "median_save_rate": 0.727,
+      "median_views": 592700.0,
+      "low_sample": false
+    },
+    {
+      "tag": "breakup_sacrifice_or_noble_idiot",
+      "label": "이별·희생(착한 바보)",
+      "n": 2,
+      "median_er": 0.475,
+      "median_save_rate": 0.389,
+      "median_views": 69750.0,
+      "low_sample": true
+    },
+    {
+      "tag": "forbidden_love",
+      "label": "⑤ 금기의 긴장",
+      "n": 4,
+      "median_er": 0.44,
+      "median_save_rate": 0.383,
+      "median_views": 96450.0,
+      "low_sample": false
+    },
+    {
+      "tag": "marriage_contract_or_family_pressure",
+      "label": "계약결혼·집안 압박",
+      "n": 8,
+      "median_er": 0.413,
+      "median_save_rate": 0.315,
+      "median_views": 283350.0,
+      "low_sample": false
+    },
+    {
+      "tag": "love_triangle_or_rival",
+      "label": "① 독점욕·질투(설정)",
+      "n": 11,
+      "median_er": 0.41,
+      "median_save_rate": 0.309,
+      "median_views": 100300.0,
+      "low_sample": false
+    },
+    {
+      "tag": "general_romance",
+      "label": "일반 로맨스",
+      "n": 33,
+      "median_er": 0.409,
+      "median_save_rate": 0.319,
+      "median_views": 91500.0,
+      "low_sample": false
+    },
+    {
+      "tag": "misunderstanding_to_reconciliation",
+      "label": "오해→화해",
+      "n": 2,
+      "median_er": 0.404,
+      "median_save_rate": 0.314,
+      "median_views": 204650.0,
+      "low_sample": true
+    },
+    {
+      "tag": "class_gap_cinderella",
+      "label": "신분차·신데렐라",
+      "n": 6,
+      "median_er": 0.396,
+      "median_save_rate": 0.339,
+      "median_views": 234650.0,
+      "low_sample": false
+    },
+    {
+      "tag": "revenge_betrayal_or_payback",
+      "label": "복수·배신·응징",
+      "n": 4,
+      "median_er": 0.363,
+      "median_save_rate": 0.266,
+      "median_views": 210150.0,
+      "low_sample": false
+    },
+    {
+      "tag": "secret_identity_or_hidden_truth",
+      "label": "정체 은폐·숨겨진 진실",
+      "n": 4,
+      "median_er": 0.337,
+      "median_save_rate": 0.289,
+      "median_views": 194850.0,
+      "low_sample": false
+    },
+    {
+      "tag": "forced_choice_or_ultimatum",
+      "label": "④ 직진(설정)",
+      "n": 5,
+      "median_er": 0.32,
+      "median_save_rate": 0.234,
+      "median_views": 25200.0,
+      "low_sample": false
+    },
+    {
+      "tag": "boss_employee_or_power_romance",
+      "label": "상사·부하·권력 로맨스",
+      "n": 1,
+      "median_er": 0.32,
+      "median_save_rate": 0.258,
+      "median_views": 177400.0,
+      "low_sample": true
+    }
+  ],
+  "cut_metrics": {
+    "n_analyzed": 56,
+    "top_third": {
+      "median_cut_count": 16.5,
+      "median_video_len": 45.9,
+      "median_first3s_closeup": 0.583,
+      "median_closeup_ratio": 0.74,
+      "median_first_cut_dur": 3.002,
+      "median_two_person": 0.222
+    },
+    "bottom_third": {
+      "median_cut_count": 8.5,
+      "median_video_len": 25.014,
+      "median_first3s_closeup": 1.0,
+      "median_closeup_ratio": 0.849,
+      "median_first_cut_dur": 2.183,
+      "median_two_person": 0.23
+    }
+  },
+  "_note": "engine.py 자동 생성물. 새 CSV를 로우데이터/·발행성과/에 넣고 engine.py 재실행 시 갱신됨. (story_type_ranking·hook_type_ranking은 engine.py 재실행 시 함께 생성)"
+}

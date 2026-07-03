@@ -1,0 +1,30 @@
+{
+  "id": "char_minjae",
+  "world_id": "world_highschool",
+  "heroine_id": "heroine_harin",
+  "goal": "",
+  "name": "민재",
+  "grade_class": "",
+  "archetype": "기타",
+  "primary_trigger": "breakup_rejection_or_distance",
+  "secondary_trigger": "breakup_rejection_or_distance",
+  "gap_surface": "자신감 넘치는 외모와 쌀쌀맞은 태도",
+  "gap_hidden": "가까운 사람에게만 보이는 불안감과 외로움",
+  "signature_action": "항상 귀에 이어폰을 꽂고 음악을 듣는다.",
+  "first3s_hook": "고등학교 복도에서 강한 눈빛으로 친구와 대화하던 민재가 갑자기 고개를 숙이고 혼자 떠나간다.",
+  "tension_partner": "",
+  "taboo_barrier": "",
+  "recommendation": {
+    "for": "primary_trigger",
+    "label": "이별·거절",
+    "reasons": [
+      "몰입도(ER) 전체 1위",
+      "검증 표본 확보(n=5편)",
+      "⚠ 도달(조회수) 낮음 — 초반 훅 보강 필요",
+      "⚠ 저장률 baseline 미만 — 저장 유도 필요"
+    ]
+  },
+  "status": "published",
+  "created_at": "2026-07-03",
+  "updated_at": "2026-07-03"
+}

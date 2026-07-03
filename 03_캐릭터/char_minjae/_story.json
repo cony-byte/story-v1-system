@@ -1,0 +1,19 @@
+{
+  "character_id": "char_minjae",
+  "title": "민재 — 이별·거절",
+  "central_trigger": "breakup_rejection_or_distance",
+  "logline": "기타 '민재'이(가) 하린을(를) 두고 '이별·거절' 트리거를 회수하는 1부작 시리즈.",
+  "arc": [
+    {
+      "episode_id": "ep_01",
+      "title": "너와의 거리",
+      "logline": "민재는 친구를 구하려다 자신의 숨겨진 불안감과 마주한다."
+    }
+  ],
+  "n_episodes": 1,
+  "summary_method": "rule",
+  "model": null,
+  "prompt_version": "story_v1",
+  "generated_at": "2026-07-03T11:48:15",
+  "_note": "build_story.py 자동 생성물. 직접 수정하지 말 것."
+}

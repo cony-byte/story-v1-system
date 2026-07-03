@@ -1,0 +1,84 @@
+{
+  "_form_version": "v2 (기획최적화 · AI선생성/사람수정)",
+  "_how_to_use": "이 폼은 '사람이 다 채우는 입력폼'이 아니라 '영상 기획 브리프'다. 사람은 _brief의 STEP1~4만 정하고, beats(HOOK~HOOKOUT)와 나머지는 AI가 규칙_최신 기반으로 생성한 뒤 사람이 고친다. 흐름: STEP1 이번 화 목표 → STEP2 사용할 트리거 → STEP3 감정 변화 → STEP4 핵심 사건 → AI가 Hook~Payoff 자동 생성. 저장(ep_NN.json) 시 '_' 접두사 필드는 제거한다.",
+
+  "_brief": {
+    "note": "사람이 정하는 건 여기뿐. 비우면 AI가 목표(step1_goal)와 주인공 캐릭터 설정 기준으로 자동 생성.",
+    "step1_goal": "",
+    "step1_goal_options": ["설렘", "저장유도", "댓글유도"],
+    "step2_trigger": "",
+    "step3_emotion_shift": "",
+    "step4_core_event": ""
+  },
+
+  "_goal_playbook": {
+    "_desc": "STEP1 목표별로 규칙_최신(2026-07-02, 100편)이 미는 트리거. STEP2가 비면 여기서 고른다. 기본값은 주인공(character_id)의 primary_trigger. 숫자는 ER%/저장률% 중앙값.",
+    "설렘": {
+      "노리는_지표": "참여율(ER)·조회수",
+      "추천_트리거": ["jealousy_possession_or_rival(질투 ER0.454)", "choice_ultimatum_or_deadline(직진 ER0.454)", "love_confession_or_desire(고백 ER0.442)"]
+    },
+    "저장유도": {
+      "노리는_지표": "저장률(save_rate)",
+      "추천_트리거": ["protective_claim_or_rescue(위기구원 저장0.456)", "choice_ultimatum_or_deadline(저장0.391)", "power_money_or_status(저장0.339)"]
+    },
+    "댓글유도": {
+      "노리는_지표": "댓글·논쟁(감정대립)",
+      "추천_트리거": ["emotional_question_or_confrontation(감정추궁 n30·ER0.391)", "misunderstanding_or_accusation(오해 ER0.404)", "threat_danger_or_revenge(위협/복수)"]
+    }
+  },
+
+  "_production_guide": {
+    "_desc": "규칙_최신 컷/연출 지표 — 상위 1/3 영상 기준. beats 타이밍·storyboard 설계 시 참고.",
+    "총_컷수_상위": 16.5,
+    "영상길이초_상위": 45.9,
+    "첫3초_클로즈업_비중_상위": 0.583,
+    "첫컷_길이초_상위": 3.0,
+    "포인트": "첫3초를 얼굴 클로즈업만으로 채우지 말 것(하위 1/3이 오히려 첫3초 클로즈업 1.0). 관계 갈등 단서를 넣어라."
+  },
+
+  "_ai_rules": [
+    "STEP1(step1_goal)은 필수. target_trigger가 비면 step2_trigger를, 그것도 비면 주인공(character_id)의 primary_trigger를 쓰되 목표와 안 맞으면 _goal_playbook에서 고른다.",
+    "beats 5개 모두 생성: HOOK(0-3초, 관계 텐션/선언, 얼굴만 X) → SETUP(3-12초, 최소 정보) → BUILD(12-30초, 긴장 상승·트리거 작동) → PAYOFF(30-45초, target_trigger 회수=정점) → HOOKOUT(마지막 3초, 다음 화 떡밥).",
+    "step3_emotion_shift(예: 무관심→독점욕)는 BUILD→PAYOFF 감정 곡선에 반드시 반영. step4_core_event는 BUILD/PAYOFF 중심 사건이 된다.",
+    "PAYOFF는 반드시 target_trigger를 회수한다.",
+    "recommendation은 자유 창작 금지 — _scripts/recommend.py (ep {char_id} {ep})가 채운다. method/model/prompt_version으로 추적.",
+    "storyboard는 후순위(null 가능). id는 ep_NN(폴더가 네임스페이스), created_at/updated_at은 오늘(YYYY-MM-DD), status는 draft. 생성 후 사람 수정 전제."
+  ],
+
+  "id": "ep_01",
+  "character_id": "char_영문슬러그",
+  "goal": "",
+  "title": "에피소드 제목",
+  "target_trigger": "이 화가 회수(payoff)할 트리거 — 보통 주인공의 primary_trigger",
+  "emotion_shift": "감정 변화 (예: 무관심 → 독점욕) — BUILD→PAYOFF 곡선에 반영",
+  "core_event": "핵심 사건 — BUILD 또는 PAYOFF의 중심",
+  "logline": "한 줄 줄거리",
+  "recommendation": {
+    "for": "target_trigger",
+    "label": "추천 트리거 사람용 라벨 (예: ④ 직진·최후통첩) — 규칙_최신.json label 그대로",
+    "reasons": [
+      "기획 언어 칩 3~5개 — schema.md '추천 이유 칩' 어휘 사용",
+      "_scripts/recommend.py ep {char_id} {ep} 로 산출"
+    ],
+    "method": "rule",
+    "model": null,
+    "prompt_version": "v1"
+  },
+  "beats": {
+    "HOOK": "0-3초: 관계 텐션 or 선언 던지기 (얼굴만 X)",
+    "SETUP": "3-12초: 왜 이 상황인지 최소 정보",
+    "BUILD": "12-30초: 긴장 상승·트리거 작동 (라이벌/위기 투입)",
+    "PAYOFF": "30-45초: 트리거 회수 = 설렘 정점",
+    "HOOKOUT": "마지막 3초: 다음 화 떡밥"
+  },
+  "storyboard": null,
+  "judge_score": null,
+  "status": "draft",
+  "published_at": null,
+  "metrics": {
+    "views": null, "likes": null, "comments": null, "shares": null,
+    "saves": null, "duration_s": null, "er_pct": null, "save_rate_pct": null
+  },
+  "created_at": "YYYY-MM-DD",
+  "updated_at": "YYYY-MM-DD"
+}

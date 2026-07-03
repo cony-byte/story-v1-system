@@ -1,0 +1,14 @@
+{
+  "character_id": "char_minjae",
+  "name": "민재",
+  "n_episodes": 1,
+  "n_published": 1,
+  "median_er": 0.31,
+  "median_save_rate": 0.24,
+  "median_views": 41000,
+  "total_views": 41000,
+  "character_score": 0.31,
+  "generated_at": "2026-07-03T09:49:31",
+  "_note": "build_performance.py 자동 생성물. 직접 수정하지 말 것.",
+  "vs_baseline_er": -0.11
+}

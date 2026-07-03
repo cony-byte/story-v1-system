@@ -1,0 +1,70 @@
+{
+  "generated_at": "2026-07-03T11:48:15",
+  "summary": {
+    "n_characters": 3,
+    "heroine": "하린",
+    "all_to_heroine": 3,
+    "trigger_distribution": {
+      "② 위기구원": 1,
+      "이별·거절": 1,
+      "① 독점욕·질투": 1
+    },
+    "trigger_overlap_groups": 0,
+    "rival_pairs": [
+      [
+        "서준",
+        "하늘"
+      ]
+    ],
+    "avg_episodes_per_char": 1.33,
+    "total_episodes": 4
+  },
+  "table": [
+    {
+      "character_id": "char_haneul",
+      "name": "하늘",
+      "trigger": "protective_claim_or_rescue",
+      "trigger_label": "② 위기구원",
+      "n_episodes": 1,
+      "episode_ids": [
+        "ep_01"
+      ],
+      "heroine": "하린",
+      "tension_partner": "서준",
+      "rival_chars": [
+        "서준"
+      ],
+      "shared_trigger_with": []
+    },
+    {
+      "character_id": "char_minjae",
+      "name": "민재",
+      "trigger": "breakup_rejection_or_distance",
+      "trigger_label": "이별·거절",
+      "n_episodes": 1,
+      "episode_ids": [
+        "ep_01"
+      ],
+      "heroine": "하린",
+      "tension_partner": "",
+      "rival_chars": [],
+      "shared_trigger_with": []
+    },
+    {
+      "character_id": "char_seojun",
+      "name": "서준",
+      "trigger": "jealousy_possession_or_rival",
+      "trigger_label": "① 독점욕·질투",
+      "n_episodes": 2,
+      "episode_ids": [
+        "ep_01",
+        "ep_02"
+      ],
+      "heroine": "하린",
+      "tension_partner": "옆 반 실장 도윤",
+      "rival_chars": [],
+      "shared_trigger_with": []
+    }
+  ],
+  "_note": "build_relations.py 자동 생성물. 관계성(텍스트·숫자형). 직접 수정하지 말 것."
+}

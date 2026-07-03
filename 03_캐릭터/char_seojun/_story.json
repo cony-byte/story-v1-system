@@ -1,0 +1,24 @@
+{
+  "character_id": "char_seojun",
+  "title": "서준 — ① 독점욕·질투",
+  "central_trigger": "jealousy_possession_or_rival",
+  "logline": "얼음 회장님 '서준'이(가) 하린을(를) 두고 '① 독점욕·질투' 트리거를 회수하는 2부작 시리즈.",
+  "arc": [
+    {
+      "episode_id": "ep_01",
+      "title": "쟤 건드리지 마",
+      "logline": "복도에서 라이벌 도윤이 하린에게 집적대자, 무표정한 학생회장 서준이 처음으로 규정을 깨고 소유욕을 드러낸다."
+    },
+    {
+      "episode_id": "ep_02",
+      "title": "너, 오늘 나랑 가자",
+      "logline": "축제 파트너를 정하는 마감 직전, 서준이 규정을 어기고 하린 앞에 손을 내민다."
+    }
+  ],
+  "n_episodes": 2,
+  "summary_method": "rule",
+  "model": null,
+  "prompt_version": "story_v1",
+  "generated_at": "2026-07-03T11:48:15",
+  "_note": "build_story.py 자동 생성물. 직접 수정하지 말 것."
+}

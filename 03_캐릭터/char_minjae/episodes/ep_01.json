@@ -1,0 +1,42 @@
+{
+  "id": "ep_01",
+  "character_id": "char_minjae",
+  "goal": "",
+  "title": "너와의 거리",
+  "target_trigger": "breakup_rejection_or_distance",
+  "emotion_shift": "",
+  "core_event": "",
+  "logline": "민재는 친구를 구하려다 자신의 숨겨진 불안감과 마주한다.",
+  "recommendation": {
+    "for": "target_trigger",
+    "label": "이별·거절",
+    "reasons": [
+      "현재 캐릭터와 궁합이 좋음 (민재 주 트리거와 일치)",
+      "몰입도(ER) 전체 1위",
+      "⚠ 도달(조회수) 낮음 — 초반 훅 보강 필요"
+    ]
+  },
+  "beats": {
+    "HOOK": "교실에서 친구를 놀리며 자신감 넘치는 모습으로 입장하는 민재.",
+    "SETUP": "교실 한편에서 소원이 갑자기 쓰러진다.",
+    "BUILD": "민재가 달려가지만 소원이 '너는 나를 아는 거니?'라고 묻는다.",
+    "PAYOFF": "소원이 '왜 나를 항상 무시해?'라며 울고, 민재가 '가까워지고 싶어서 그랬어!'라고 외친다.",
+    "HOOKOUT": "다음편 예고, 민재의 뒷모습. '너와의 거리, 이제는 두렵지 않아?'"
+  },
+  "storyboard": null,
+  "judge_score": null,
+  "status": "published",
+  "published_at": null,
+  "metrics": {
+    "views": 41000,
+    "likes": 4300,
+    "comments": 520,
+    "shares": 610,
+    "saves": 980,
+    "duration_s": 28,
+    "er_pct": 0.31,
+    "save_rate_pct": 0.24
+  },
+  "created_at": "2026-07-03",
+  "updated_at": "2026-07-03"
+}
