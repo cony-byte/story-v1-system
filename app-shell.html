@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>숏폼 기획 대시보드 — 레이아웃 쉘 (로그인 후 화면)</title>
+<title>숏폼 기획 대시보드 — 기획-v2 (Google Drive)</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root{color-scheme:light}
 *{box-sizing:border-box}
@@ -138,19 +139,31 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
 .ms-tree li>details>summary::-webkit-details-marker{display:none}
 .ms-tree li>details>summary::before{content:"▸ ";color:#8a8a90;font-size:10px}
 .ms-tree li>details[open]>summary::before{content:"▾ "}
+#gate{max-width:520px;margin:8vh auto;text-align:center}
+#gate .card{padding:26px}
+.gbtn{display:inline-flex;align-items:center;gap:8px;background:#1a73e8;color:#fff;border:none;padding:10px 18px;border-radius:8px;font-weight:600;cursor:pointer}
 </style>
 </head>
 <body>
 
-<!-- 레이아웃 쉘: 로그인(게이트) 화면 제외, 로그인 이후 #app 화면만. 실제 데이터/OAuth/Drive 로직은 없음(빈 상태). -->
-<div class="shellbar"><div class="note info">📐 <b>레이아웃 쉘</b> — 로그인 이후 화면 구조만 보여주는 정적 미리보기입니다. 로그인·Drive 데이터·저장 기능은 없고 모든 영역은 빈 상태로 표시됩니다. 탭 전환만 동작합니다.</div></div>
+<div id="gate">
+  <div class="card">
+    <h1>숏폼 드라마 기획 — 구조 대시보드</h1>
+    <p class="muted">본인 구글 계정으로 로그인하면 본인 Drive의 <b>기획-v2</b> 워크스페이스를 읽고 편집합니다.</p>
+    <div id="cfgWarn"></div>
+    <div style="margin:16px 0"><button class="gbtn" id="loginBtn">Google로 로그인</button></div>
+    <details style="text-align:left;margin-top:10px"><summary class="muted" style="cursor:pointer">고급: 루트 폴더 직접 지정</summary>
+      <label>루트 폴더 ID (비우면 '기획-v2' 자동 탐색) <input id="rootIdInput" placeholder="예: 1BjcEr0..."></label></details>
+    <div id="gateMsg"></div>
+  </div>
+</div>
 
-<div class="wrap" id="app">
+<div class="wrap hidden" id="app">
   <h1>숏폼 드라마 기획 — 구조 대시보드</h1>
-  <div class="sub">Google Drive · <b id="rootName">기획-v1</b> · <span id="who">user@example.com</span>
-    <button class="mini" onclick="demo()">↻ 새로고침</button>
-    <button class="mini" onclick="demo()">로그아웃</button>
-    <button class="mini del" onclick="demo()" title="세계관·캐릭터·스토리·에피소드·스토리보드 전부 삭제(규칙엔진 유지)">🧹 초기화</button> <span id="status"></span></div>
+  <div class="sub">Google Drive · <b id="rootName">기획-v2</b> · <span id="who"></span>
+    <button class="mini" onclick="loadAll()">↻ 새로고침</button>
+    <button class="mini" onclick="signOut()">로그아웃</button>
+    <button class="mini del" onclick="resetWorkspace()" title="모든 캐릭터·에피소드 삭제 (세계관·여주·규칙엔진은 유지)">🧹 데이터 초기화</button> <span id="status"></span></div>
 
   <details class="card" id="aiCard" style="padding:12px">
     <summary style="cursor:pointer;font-weight:700">🤖 AI 설정 <span class="muted" style="font-weight:400">— OpenAI 키로 초안 자동생성</span></summary>
@@ -161,7 +174,7 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
       <option value="gpt-4o">gpt-4o (고품질)</option>
       <option value="gpt-4.1-mini">gpt-4.1-mini</option>
     </select></label>
-    <div style="margin-top:10px"><button class="mini primary" onclick="demo()">저장</button> <button class="mini" onclick="demo()">키 삭제</button> <span id="ai_cfgmsg" class="k"></span></div>
+    <div style="margin-top:10px"><button class="mini primary" onclick="saveAiCfg()">저장</button> <button class="mini" onclick="clearAiCfg()">키 삭제</button> <span id="ai_cfgmsg" class="k"></span></div>
     <div class="k" style="margin-top:6px">키 발급: platform.openai.com/api-keys · 사용 요금은 본인 OpenAI 계정에 청구됩니다.</div>
   </details>
 
@@ -240,12 +253,7 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
             <div class="stepq">무슨 반응을 만들 캐릭터인가?</div>
             <select id="c_goal">
               <option value="">(선택)</option><option>설렘</option><option>저장유도</option><option>댓글유도</option></select>
-            <div class="airec">🤖 <b>AI 추천</b> — "위기구원 + 얼음 회장형" 조합 <span class="k">(recommend.py · method=rule)</span>
-              <div style="margin-top:5px"><span class="k">데이터 칩 — 숫자·규칙엔진 고정(환각 불가)</span><br>
-                <span class="chip data">성과 상위 30%</span><span class="chip data">검증 표본 충분(n=14)</span><span class="chip warn">⚠ 저장률 baseline 미만</span></div>
-              <div style="margin-top:5px"><span class="k">판단 칩 — 트리거 선택·궁합 (어휘표 내, 3개 이하)</span><br>
-                <span class="chip">몰입도 상위권</span><span class="chip">아키타입 궁합 좋음</span><span class="chip">덜 사용된 트리거</span></div>
-            </div>
+            <div class="airec" id="recChar">🤖 <b>규칙 기반 추천</b> <span class="k">규칙_최신.json 로드 후 표시됩니다.</span></div>
           </div>
 
           <div class="step">
@@ -303,7 +311,7 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
             <div class="row2"><label>텐션 상대 <input id="c_tp"></label><label>금기·장벽 <input id="c_taboo"></label></div>
           </details>
 
-          <div style="margin-top:12px"><button class="primary" style="width:100%;padding:12px" onclick="toast('남캐 생성 (데모)')">남캐 생성</button></div>
+          <div style="margin-top:12px"><button class="primary" style="width:100%;padding:12px" onclick="saveChar()">남캐 생성</button></div>
         </div>
 
         <div id="tab-addEp" class="hidden">
@@ -313,7 +321,7 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
             <div class="k" style="margin-top:5px;text-align:center">주인공만 정하거나(또는 비워도) AI가 감정·장면·초안까지 알아서 제안합니다.</div></div>
 
           <div class="qc"><div class="qt"><span class="qn">STEP 1</span> 주인공 남캐</div>
-            <select id="e_char"><option value="">(선택)</option><option>민재</option><option>서준</option><option>하늘</option></select></div>
+            <select id="e_char" onchange="renderEpRec()"><option value="">(선택)</option></select></div>
 
           <div class="qc"><div class="qt"><span class="qn">STEP 2</span> 이번 화에서 만들 감정</div>
             <select id="e_trig">
@@ -324,10 +332,7 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
               <option value="choice_ultimatum_or_deadline">직진·최후통첩</option>
               <option value="misunderstanding_or_accusation">오해·서운함</option>
               <option value="threat_danger_or_revenge">위협·긴장</option></select>
-            <div class="airec">🤖 <b>이 감정을 추천하는 이유</b> <span class="k">(recommend.py · method=rule)</span>
-              <div style="margin-top:5px"><span class="k">데이터 칩</span> <span class="chip data">질투 ER 상위(0.454)</span><span class="chip data">주인공 트리거와 일치</span></div>
-              <div style="margin-top:4px"><span class="k">판단 칩</span> <span class="chip">현재 캐릭터와 궁합</span><span class="chip">다음 감정선으로 연결</span></div>
-            </div></div>
+            <div class="airec" id="recEp">🤖 <b>추천 이유</b> <span class="k">주인공을 고르면 규칙 기반 추천이 표시됩니다.</span></div></div>
 
           <div class="qc"><div class="qt"><span class="qn">STEP 3</span> 이번 화 핵심 장면</div>
             <select id="e_core">
@@ -349,7 +354,7 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
             <div class="beat"><span class="bk">BUILD</span><textarea id="d_build">민재는 신경 안 쓰는 척하지만 계속 시선이 따라간다.</textarea></div>
             <div class="beat"><span class="bk">PAYOFF</span><textarea id="d_payoff">여주가 넘어질 뻔한 순간 민재가 먼저 손목을 잡는다.</textarea></div>
             <div class="beat"><span class="bk">HOOK-OUT</span><textarea id="d_hookout">"다음부터 내 앞에서 그렇게 웃지 마."</textarea></div>
-            <div style="margin-top:12px;display:flex;gap:8px"><button class="primary" onclick="toast('드래프트로 저장 (데모)')">드래프트로 저장</button><button onclick="document.getElementById('epDraft').classList.add('hidden')">닫기</button></div>
+            <div style="margin-top:12px;display:flex;gap:8px"><button class="primary" onclick="saveEp()">드래프트로 저장</button><button onclick="document.getElementById('epDraft').classList.add('hidden')">닫기</button></div>
           </div>
         </div>
       </div>
@@ -377,8 +382,251 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
 <div id="toast"></div>
 
 <script>
-/* ===== 레이아웃 쉘 전용 최소 JS =====
-   실제 앱 로직(OAuth/Drive/AI/저장)은 없음. 탭 전환과 스토리보드 10컷 폼 골격만 살림. */
+/* =========================================================
+   Google Drive 연동 (DB = 본인 Drive의 '기획-v2' 워크스페이스)
+   구조: 03_캐릭터 / char_<id> / character.json, episodes 폴더의 ep_NN.json, _story.json
+         00_규칙엔진 / 규칙_최신.json, 01_세계관.json, 02_여주.json
+   ========================================================= */
+var CONFIG={CLIENT_ID:"279160268866-6btq4gvj3g1e725vbk370kh8j2otlgom.apps.googleusercontent.com",
+  SCOPE:"https://www.googleapis.com/auth/drive",ROOT_FOLDER_NAME:"기획-v2"};
+var TOKEN=null,tokenClient=null,ROOT_ID=null,FOLD={};
+var CHARS=[],EPS=[],STORYLIST=[],STORIES=[],SBS=[],RULES=null,WORLD=null,HEROINE=null;
+var CONNECTED=false,SELECTED_CHAR=null;
+
+/* ---------- OAuth (Google Identity Services) ---------- */
+function gmsg(t,c){var e=document.getElementById('gateMsg');if(e)e.innerHTML='<div class="note '+(c||'info')+'">'+t+'</div>';}
+window.addEventListener('load',function(){
+  var iv=setInterval(function(){
+    if(window.google&&google.accounts&&google.accounts.oauth2){clearInterval(iv);
+      tokenClient=google.accounts.oauth2.initTokenClient({client_id:CONFIG.CLIENT_ID,scope:CONFIG.SCOPE,
+        callback:function(r){if(r.error){gmsg('로그인 실패: '+r.error,'err');return;}TOKEN=r.access_token;onSignedIn();}});}
+  },200);
+});
+document.getElementById('loginBtn').onclick=function(){if(!tokenClient){gmsg('Google 스크립트 로딩 중… 잠시 후 다시 눌러주세요','err');return;}tokenClient.requestAccessToken({prompt:'consent'});};
+function signOut(){if(TOKEN&&window.google)google.accounts.oauth2.revoke(TOKEN,function(){});TOKEN=null;CONNECTED=false;
+  document.getElementById('app').classList.add('hidden');document.getElementById('gate').style.display='block';}
+function onSignedIn(){document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');whoAmI();loadAll();}
+function whoAmI(){fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+TOKEN}})
+  .then(function(r){return r.json();}).then(function(j){var e=document.getElementById('who');if(e)e.textContent=j.email||'';}).catch(function(){});}
+
+/* ---------- Drive REST ---------- */
+function driveFetch(url,opts){opts=opts||{};opts.headers=Object.assign({Authorization:'Bearer '+TOKEN},opts.headers||{});
+  return fetch(url,opts).then(function(r){
+    if(r.status===401){return new Promise(function(res,rej){tokenClient.callback=function(x){if(x.error){rej(new Error('재인증 실패'));return;}TOKEN=x.access_token;res();};tokenClient.requestAccessToken({prompt:''});})
+      .then(function(){opts.headers.Authorization='Bearer '+TOKEN;return fetch(url,opts);});}
+    return r;});}
+function esc1(s){return String(s).replace(/'/g,"\\'");}
+function norm(s){return (s||'').normalize('NFC');}
+function driveList(q){var url='https://www.googleapis.com/drive/v3/files?q='+encodeURIComponent(q)+'&fields=files(id,name,mimeType,parents,driveId)&pageSize=500&spaces=drive&supportsAllDrives=true&includeItemsFromAllDrives=true&corpora=allDrives';
+  return driveFetch(url).then(function(r){if(!r.ok)throw new Error('목록 조회 실패 '+r.status);return r.json();}).then(function(j){return j.files||[];});}
+function driveGetJson(id){return driveFetch('https://www.googleapis.com/drive/v3/files/'+id+'?alt=media&supportsAllDrives=true')
+  .then(function(r){if(!r.ok)throw new Error('읽기 실패 '+r.status);return r.text();}).then(function(t){return JSON.parse(t);});}
+function stripMeta(o){var c={};for(var k in o)if(k.indexOf('__')!==0)c[k]=o[k];return c;}
+function driveCreateJson(folderId,name,obj){var b='sf_'+Math.random().toString(36).slice(2);
+  var body='--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify({name:name,parents:[folderId],mimeType:'application/json'})+'\r\n--'+b+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(stripMeta(obj),null,2)+'\r\n--'+b+'--';
+  return driveFetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart&fields=id&supportsAllDrives=true',{method:'POST',headers:{'Content-Type':'multipart/related; boundary='+b},body:body})
+    .then(function(r){if(!r.ok)throw new Error('저장 실패 '+r.status);return r.json();});}
+function driveUpdateJson(fileId,obj){return driveFetch('https://www.googleapis.com/upload/drive/v3/files/'+fileId+'?uploadType=media&supportsAllDrives=true',
+  {method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body:JSON.stringify(stripMeta(obj),null,2)})
+  .then(function(r){if(!r.ok)throw new Error('수정 실패 '+r.status);return r.json();});}
+function driveTrash(fileId){return driveFetch('https://www.googleapis.com/drive/v3/files/'+fileId+'?supportsAllDrives=true',
+  {method:'PATCH',headers:{'Content-Type':'application/json; charset=UTF-8'},body:JSON.stringify({trashed:true})})
+  .then(function(r){if(!r.ok)throw new Error('삭제 실패 '+r.status);return true;});}
+function driveCreateFolder(name,parentId){return driveFetch('https://www.googleapis.com/drive/v3/files?fields=id&supportsAllDrives=true',
+  {method:'POST',headers:{'Content-Type':'application/json; charset=UTF-8'},body:JSON.stringify({name:name,parents:[parentId],mimeType:'application/vnd.google-apps.folder'})})
+  .then(function(r){if(!r.ok)throw new Error('폴더 생성 실패 '+r.status);return r.json();});}
+function findFolderByName(name,parentId){var q="name='"+esc1(name)+"' and mimeType='application/vnd.google-apps.folder' and trashed=false"+(parentId?(" and '"+parentId+"' in parents"):"");
+  return driveList(q).then(function(f){return f[0]?f[0].id:null;});}
+function findFileByName(name,parentId){var n=norm(name);
+  return driveList("'"+parentId+"' in parents and trashed=false").then(function(files){return files.find(function(f){return norm(f.name)===n;})||null;});}
+function ensureEpFolder(charFolderId){return findFolderByName('episodes',charFolderId).then(function(id){return id||driveCreateFolder('episodes',charFolderId).then(function(m){return m.id;});});}
+
+/* ---------- discover + load ---------- */
+function val(id){var e=document.getElementById(id);return e?e.value:'';}
+function today(){return new Date().toISOString().slice(0,10);}
+function setTxt(id,t){var e=document.getElementById(id);if(e)e.textContent=t;}
+async function discover(){
+  var manual=(val('rootIdInput')||'').trim();
+  ROOT_ID=manual||await findFolderByName(CONFIG.ROOT_FOLDER_NAME,null);
+  if(!ROOT_ID)throw new Error("'"+CONFIG.ROOT_FOLDER_NAME+"' 폴더를 찾지 못했습니다. 로그인 화면 '고급'에서 폴더 ID를 지정하세요.");
+  var kids=await driveList("'"+ROOT_ID+"' in parents and trashed=false"); // 루트 1회 조회로 폴더+파일 모두 파악
+  var folder={},file={};
+  kids.forEach(function(f){ if(f.mimeType==='application/vnd.google-apps.folder') folder[norm(f.name)]=f.id; else file[norm(f.name)]=f.id; });
+  FOLD={rules:folder[norm('00_규칙엔진')],char:folder[norm('03_캐릭터')],worldFile:file[norm('01_세계관.json')],heroFile:file[norm('02_여주.json')]};
+}
+async function loadOneChar(cf){
+  var files=await driveList("'"+cf.id+"' in parents and trashed=false");
+  var charFile=files.find(function(x){return x.name==='character.json';});
+  var epFolder=files.find(function(x){return x.name==='episodes'&&x.mimeType==='application/vnd.google-apps.folder';});
+  var r=await Promise.all([
+    charFile?driveGetJson(charFile.id):Promise.resolve(null),
+    epFolder?driveList("'"+epFolder.id+"' in parents and mimeType='application/json' and trashed=false").then(function(efs){
+        return Promise.all(efs.map(function(ef){return driveGetJson(ef.id).then(function(e){e.__fileId=ef.id;e.__charFolderId=cf.id;return e;});}));
+      }):Promise.resolve([])
+  ]);
+  var c=r[0];if(c){c.__fileId=charFile.id;c.__folderId=cf.id;}
+  return {char:c,eps:r[1]};
+}
+async function loadChars(){
+  var cfolders=(await driveList("'"+FOLD.char+"' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false"))
+    .filter(function(f){return f.name.indexOf('char_')===0;});
+  var parts=await Promise.all(cfolders.map(loadOneChar));
+  var chars=[],eps=[];
+  parts.forEach(function(p){if(p.char)chars.push(p.char);eps=eps.concat(p.eps);});
+  return {chars:chars,eps:eps};
+}
+async function loadAll(){
+  if(!TOKEN)return;
+  var st=document.getElementById('status');if(st)st.innerHTML='<span class="spin"></span> 동기화 중';
+  try{
+    await discover();
+    // 규칙·세계관·여주·캐릭터를 모두 병렬로 조회 (_story.json은 안 읽음 — 메인스토리는 실시간 파생)
+    var res=await Promise.all([
+      FOLD.rules?findFileByName('규칙_최신.json',FOLD.rules).then(function(rf){return rf?driveGetJson(rf.id):null;}):Promise.resolve(null),
+      FOLD.worldFile?driveGetJson(FOLD.worldFile):Promise.resolve(null),
+      FOLD.heroFile?driveGetJson(FOLD.heroFile):Promise.resolve(null),
+      FOLD.char?loadChars():Promise.resolve({chars:[],eps:[]})
+    ]);
+    RULES=res[0];WORLD=res[1];HEROINE=res[2];CHARS=res[3].chars;EPS=res[3].eps;STORYLIST=[];
+    CONNECTED=true;renderAll();if(st)st.textContent='';
+  }catch(e){if(st)st.innerHTML='<span style="color:#c0392b">오류: '+e.message+'</span>';}
+}
+
+/* ---------- render pipeline ---------- */
+/* 메인스토리를 발행 캐릭터+에피소드에서 실시간 파생 (build_story.py의 브라우저판 · _story.json에 의존 안 함) */
+function storyTrigLabel(tag){var ti=((RULES&&RULES.trigger_ranking_grammar)||[]).find(function(t){return t.tag===tag;});return (ti&&ti.label)||trigLabel(tag);}
+function buildStoryList(){var out=[];
+  _arr(function(){return CHARS;}).filter(function(c){return c.status==='published';}).forEach(function(c){
+    var eps=_arr(function(){return EPS;}).filter(function(e){return e.character_id===c.id && e.status==='published';});
+    if(!eps.length)return;
+    var label=storyTrigLabel(c.primary_trigger),h=(HEROINE&&HEROINE.name)||'여주',arch=c.archetype||'';
+    out.push({character_id:c.id,title:(c.name||c.id)+' — '+label,central_trigger:c.primary_trigger,
+      logline:(arch?arch+' ':'')+"'"+(c.name||c.id)+"'이(가) "+h+"을(를) 두고 '"+label+"' 트리거를 회수하는 "+eps.length+"부작 시리즈.",
+      n_episodes:eps.length,
+      arc:eps.map(function(e){return {episode_id:e.id,title:e.title||e.id,logline:e.logline||''};})});
+  });
+  return out;}
+function renderAll(){renderFixed();renderKpi();renderRules();renderRel();populateCharSelects();
+  renderTodo();renderDrafts();renderPubList();fillEpFilter();renderEpList();renderCharRec();renderEpRec();if(window.renderMainstory)window.renderMainstory(buildStoryList());}
+function renderFixed(){
+  if(WORLD){setTxt('fx-world-name',WORLD.name||'');setTxt('fx-world-id',WORLD.id||'');setTxt('fx-world-tone',(WORLD.tone||'')+' — 01_세계관.json');}
+  if(HEROINE){setTxt('fx-heroine-name',HEROINE.name||'');setTxt('fx-heroine-id',HEROINE.id||'');setTxt('fx-heroine-role',(HEROINE.role||HEROINE.profile||'')+' — 02_여주.json');}
+}
+function renderKpi(){setTxt('kpi-chars',CHARS.filter(function(c){return c.status==='published';}).length);setTxt('kpi-eps',EPS.filter(function(e){return e.status==='published';}).length);}
+function baseER(){return RULES?RULES.baseline.median_er:0.42;}
+function renderRules(){var meta=document.getElementById('ruleMeta');
+  if(!RULES){if(meta)meta.textContent='(규칙 없음)';return;}
+  if(meta)meta.textContent='· '+RULES.n_videos_total+'편';
+  document.getElementById('baseline').innerHTML='기준선 ER <b>'+RULES.baseline.median_er+'</b> · 저장률 '+RULES.baseline.median_save_rate;
+  var h='';(RULES.trigger_ranking_grammar||[]).slice(0,8).forEach(function(t){var s=t.median_er>=baseER();h+='<tr><td>'+(t.label||t.tag)+'</td><td>'+t.median_er+'</td><td><span class="badge '+(s?'b-strong':'b-weak')+'">'+(s?'강':'약')+'</span></td></tr>';});
+  var tb=document.querySelector('#trigTable tbody');if(tb)tb.innerHTML=h;
+  h='';(RULES.trope_ranking||[]).slice(0,6).forEach(function(t){var s=t.median_er>=baseER();h+='<tr><td>'+(t.label||t.tag)+(t.low_sample?' <span class="pill">저표본</span>':'')+'</td><td>'+t.median_er+'</td><td><span class="badge '+(s?'b-strong':'b-weak')+'">'+(s?'강':'약')+'</span></td></tr>';});
+  var tb2=document.querySelector('#tropeTable tbody');if(tb2)tb2.innerHTML=h;
+  var cm=RULES.cut_metrics&&RULES.cut_metrics.top_third;if(cm)document.getElementById('cutMetrics').innerHTML='컷 '+cm.median_cut_count+'개 · 길이 '+cm.median_video_len+'s · 첫3초 클로즈업 '+cm.median_first3s_closeup;
+}
+function renderRel(){var tb=document.querySelector('#relTable tbody'),sum=document.getElementById('relSummary');if(!tb)return;
+  if(!CHARS.length){tb.innerHTML='<tr><td colspan="6" class="muted">아직 없음. 캐릭터·에피소드를 발행하면 행이 자동으로 채워집니다.</td></tr>';
+    if(sum)sum.textContent='발행된 캐릭터가 쌓이면 여기 관계성 요약(숫자)이 자동 계산됩니다.';return;}
+  var trigCount={};CHARS.forEach(function(c){trigCount[c.primary_trigger]=(trigCount[c.primary_trigger]||0)+1;});
+  var hname=(HEROINE&&HEROINE.name)||'여주';var h='';
+  CHARS.forEach(function(c){var ce=EPS.filter(function(e){return e.character_id===c.id;});
+    var same=CHARS.filter(function(o){return o.id!==c.id&&o.primary_trigger===c.primary_trigger;}).map(function(o){return o.name;});
+    h+='<tr><td>'+esc(c.name||c.id)+'</td><td>'+esc(trigLabel(c.primary_trigger))+'</td><td>'+ce.length+'</td><td>'+esc(hname)+'</td><td>'+esc(c.tension_partner||'-')+'</td><td>'+(same.length?esc(same.join(', ')):'-')+'</td></tr>';});
+  tb.innerHTML=h;
+  var overlap=Object.keys(trigCount).filter(function(k){return trigCount[k]>1;}).length;
+  var rivals=CHARS.filter(function(c){return c.tension_partner;}).length;
+  var avg=CHARS.length?(EPS.length/CHARS.length).toFixed(1):0;
+  if(sum)sum.innerHTML='남캐 <b>'+CHARS.length+'</b>명 → '+esc(hname)+' · 평균 '+avg+'화/명 · 트리거 겹침 '+overlap+' · 텐션쌍 '+rivals;
+}
+function populateCharSelects(){var sel=document.getElementById('e_char');if(sel)sel.innerHTML='<option value="">(선택)</option>'+CHARS.map(function(c){return '<option value="'+c.id+'">'+esc(c.name||c.id)+'</option>';}).join('');}
+
+/* ---------- 저장 (Drive 쓰기) ---------- */
+async function saveChar(){
+  if(!CONNECTED)return toast('로그인 후 저장됩니다');
+  if(!FOLD.char)return toast('03_캐릭터 폴더를 찾지 못했습니다');
+  var name=(val('c_name')||'').trim();if(!name)return toast('이름을 입력하세요 (상세 항목)');
+  var id=(val('c_id')||'').trim()||('char_'+name.toLowerCase().replace(/[^a-z0-9가-힣]/g,'')+'_'+Math.random().toString(36).slice(2,5));
+  var obj={id:id,world_id:(WORLD&&WORLD.id)||'world_highschool',heroine_id:(HEROINE&&HEROINE.id)||'heroine_harin',
+    goal:val('c_goal'),name:name,grade_class:'',archetype:val('c_arch'),primary_trigger:val('c_trig'),secondary_trigger:val('c_trig2'),
+    gap_surface:val('c_gs'),gap_hidden:val('c_gh'),signature_action:val('c_sig'),first3s_hook:val('c_hook'),
+    tension_partner:val('c_tp'),taboo_barrier:val('c_taboo'),recommendation:null,status:'draft',created_at:today(),updated_at:today()};
+  try{toast('저장 중…');
+    var existing=CHARS.find(function(c){return c.id===id;});
+    if(existing&&existing.__fileId){obj.created_at=existing.created_at||today();await driveUpdateJson(existing.__fileId,obj);
+      obj.__fileId=existing.__fileId;obj.__folderId=existing.__folderId;CHARS[CHARS.indexOf(existing)]=obj;}
+    else{var folder=await driveCreateFolder(id,FOLD.char);var created=await driveCreateJson(folder.id,'character.json',obj);await driveCreateFolder('episodes',folder.id);
+      obj.__fileId=created.id;obj.__folderId=folder.id;CHARS.push(obj);}
+    toast('캐릭터 "'+name+'" 저장됨');renderAll();switchTab('drafts');
+  }catch(e){toast('저장 실패: '+e.message);}
+}
+async function saveEp(){
+  if(!CONNECTED)return toast('로그인 후 저장됩니다');
+  var charId=val('e_char');var ch=CHARS.find(function(c){return c.id===charId;});
+  if(!ch)return toast('주인공 캐릭터를 먼저 선택하세요');
+  if(!ch.__folderId)return toast('캐릭터 폴더를 찾지 못했습니다');
+  try{toast('저장 중…');
+    var epFolderId=await ensureEpFolder(ch.__folderId);
+    var n=EPS.filter(function(e){return e.character_id===charId;}).length+1;
+    var epId='ep_'+String(n).padStart(2,'0');
+    var log=val('d_log')||'새 에피소드';
+    var obj={id:epId,character_id:charId,goal:'',title:(log.split('\n')[0]||epId).slice(0,24),target_trigger:val('e_trig'),
+      emotion_shift:'',core_event:val('e_core'),logline:log,
+      beats:{HOOK:val('d_hook'),SETUP:val('d_setup'),BUILD:val('d_build'),PAYOFF:val('d_payoff'),HOOKOUT:val('d_hookout')},
+      storyboard:null,judge_score:null,status:'draft',published_at:null,metrics:null,created_at:today(),updated_at:today()};
+    var created=await driveCreateJson(epFolderId,epId+'.json',obj);
+    obj.__fileId=created.id;obj.__charFolderId=ch.__folderId;EPS.push(obj);
+    toast('에피소드 저장됨 → '+(ch.name||charId));renderAll();switchTab('drafts');
+  }catch(e){toast('저장 실패: '+e.message);}
+}
+
+/* ---------- 드래프트함 (status!=='published') + 발행 ---------- */
+function renderDrafts(){var el=document.getElementById('drafts');if(!el)return;
+  if(typeof CONNECTED==='undefined'||!CONNECTED){el.innerHTML='<div class="muted">로그인하면 드래프트가 여기 표시됩니다.</div>';return;}
+  var items=[];
+  CHARS.filter(function(c){return c.status!=='published';}).forEach(function(c){items.push({type:'char',o:c,label:'🎭 '+(c.name||c.id)+' ('+trigLabel(c.primary_trigger)+')'});});
+  EPS.filter(function(e){return e.status!=='published';}).forEach(function(e){items.push({type:'ep',o:e,label:'▶ '+(e.title||e.id)});});
+  if(!items.length){el.innerHTML='<div class="muted">드래프트가 없습니다. ＋캐릭터/＋에피소드에서 만들면 여기 쌓이고, 발행하면 발행 캐릭터·메인스토리에 올라갑니다.</div>';return;}
+  var h='';items.forEach(function(it){
+    h+='<div class="draftrow"><b>'+esc(it.label)+'</b> <span class="badge b-draft">draft</span> <span class="k">'+esc(it.o.id)+'</span>'
+      +'<div class="btns">'
+      +'<button class="mini pub" onclick=\'publishRecord("'+it.type+'","'+esc1(it.o.__fileId)+'")\'>✅ 발행</button>'
+      +'<button class="mini del" onclick=\'delDraft("'+it.type+'","'+esc1(it.o.__fileId)+'")\'>🗑 삭제</button>'
+      +'</div></div>';});
+  el.innerHTML=h;}
+async function publishRecord(type,fid){
+  var o=(type==='char'?CHARS:EPS).find(function(x){return x.__fileId===fid;});if(!o||!o.__fileId)return toast('레코드를 찾지 못했습니다');
+  try{toast('발행 중…');var n=Object.assign({},o);n.status='published';n.updated_at=today();if(type==='ep')n.published_at=today();
+    await driveUpdateJson(o.__fileId,n);
+    o.status='published';o.updated_at=n.updated_at;if(type==='ep')o.published_at=n.published_at;
+    toast('발행됨 → DB 반영');renderAll();
+  }catch(e){toast('발행 실패: '+e.message);}}
+async function delDraft(type,fid){
+  var o=(type==='char'?CHARS:EPS).find(function(x){return x.__fileId===fid;});if(!o)return;
+  if(!confirm('드래프트 "'+(o.name||o.title||o.id)+'" 삭제할까요? (Drive 휴지통)'))return;
+  try{toast('삭제 중…');
+    if(type==='char'){await driveTrash(o.__folderId||o.__fileId);EPS=EPS.filter(function(e){return e.character_id!==o.id;});CHARS=CHARS.filter(function(x){return x!==o;});}
+    else{await driveTrash(o.__fileId);EPS=EPS.filter(function(x){return x!==o;});}
+    toast('삭제됨');renderAll();
+  }catch(e){toast('삭제 실패: '+e.message);}}
+/* 데이터 초기화 — 모든 캐릭터(=char_* 폴더, 안의 에피소드 포함) 삭제. 세계관·여주·규칙엔진은 유지 */
+async function resetWorkspace(){
+  if(!CONNECTED)return toast('로그인 후 사용하세요');
+  if(!FOLD.char)return toast('03_캐릭터 폴더를 찾지 못했습니다');
+  var st=document.getElementById('status');if(st)st.innerHTML='<span class="spin"></span> 대상 확인 중';
+  var cfolders;
+  try{cfolders=(await driveList("'"+FOLD.char+"' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false")).filter(function(f){return f.name.indexOf('char_')===0;});}
+  catch(e){if(st)st.textContent='';return toast('목록 조회 실패: '+e.message);}
+  if(st)st.textContent='';
+  if(!cfolders.length)return toast('지울 캐릭터가 없습니다');
+  if(!confirm('⚠ 데이터 초기화\n\n캐릭터 '+cfolders.length+'명과 딸린 에피소드 전부를 삭제합니다.\n세계관·여주·규칙엔진은 유지됩니다.\n\n파일은 Drive 휴지통으로 이동하며 30일 내 복구 가능.\n계속할까요?'))return;
+  if(!confirm('정말 캐릭터 '+cfolders.length+'명 전부 삭제할까요?'))return;
+  if(st)st.innerHTML='<span class="spin"></span> '+cfolders.length+'명 삭제 중…';
+  var results=await Promise.all(cfolders.map(function(cf){return driveTrash(cf.id).then(function(){return true;},function(){return false;});}));
+  var done=results.filter(Boolean).length,failed=results.length-done;
+  CHARS=[];EPS=[];if(st)st.textContent='';renderAll();
+  toast('초기화 완료 · 캐릭터 '+done+'명 삭제'+(failed?(' · '+failed+'명 실패'):''));
+}
+
 const FRAMING=["미디엄","클로즈업","전신","인서트"],
   GAZE=["나를 본다","나를 안 본다","나를 보다가 안 본다","얼굴X"],
   ANGLE=["아이레벨","로우앵글","하이앵글"],
@@ -386,27 +634,51 @@ const FRAMING=["미디엄","클로즈업","전신","인서트"],
 function opt(v,t){return `<option value="${v}">${t||v}</option>`;}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2000);}
 function demo(){toast('레이아웃 쉘 — 동작 없음(데모)');}
-function genEp(){var d=document.getElementById('epDraft');if(!d)return;d.classList.remove('hidden');toast('AI 초안 생성 (데모)');d.scrollIntoView({behavior:'smooth',block:'nearest'});}
 function setVal(id,v){var e=document.getElementById(id);if(e)e.value=v;}
-/* 캐릭터 통째 AI 추천 — 폼 전체를 데모 값으로 채움 (실앱: recommend.py + LLM 초안) */
-function autoChar(){
-  setVal('c_goal','설렘'); setVal('c_trig','jealousy_possession_or_rival'); setVal('c_arch','얼음 회장형');
-  setVal('c_gs','전교 1등 학생회장, 늘 냉정하고 무심함');
-  setVal('c_gh','여주가 위험할 때만 무너져 가장 먼저 움직임');
-  setVal('c_hook','복도에서 넘어지는 여주를 말없이 붙잡아 세운다');
-  setVal('c_name','도운'); setVal('c_id','char_dowoon'); setVal('c_trig2','love_confession_or_desire');
-  setVal('c_sig','안경을 고쳐쓰며 시선을 피한다');
-  setVal('c_tp','라이벌 학생회 부회장'); setVal('c_taboo','성적 1위 자리를 둔 경쟁 관계');
-  var adv=document.querySelector('#tab-addChar .advbox'); if(adv) adv.open=true;
-  toast('AI가 캐릭터 전체를 추천했어요 (데모) — 수정 후 생성');
+async function genEp(){var d=document.getElementById('epDraft');if(!d)return;
+  var ch=CHARS.find(function(c){return c.id===val('e_char');});
+  var tag=val('e_trig')||(ch&&ch.primary_trigger)||'';
+  if(ch&&aiOn()){
+    toast('AI가 에피소드 초안 생성 중…');
+    try{var w=(WORLD&&WORLD.name)||'고등학교',h=(HEROINE&&HEROINE.name)||'여주';
+      var o=await aiJSON('세계관: '+w+'\n여주: '+h+'\n주인공: '+(ch.name||ch.id)+' (아키타입 '+(ch.archetype||'')+')\n회수 트리거: '+trigLabel(tag)+'\n핵심 장면 힌트: '+(val('e_core')||'(자유)')+'\n겉: '+(ch.gap_surface||'')+' / 그 앞에서만: '+(ch.gap_hidden||'')+'\n\n이 캐릭터가 트리거를 정점에서 터뜨리는 30~45초 숏폼 1화. JSON 키만:\n{"logline":"한 줄 줄거리","hook":"0-3초","setup":"3-12초","build":"12-30초","payoff":"30-45초","hookout":"마지막 3초 다음화 떡밥"}');
+      setVal('d_log',o.logline||'');setVal('d_hook',o.hook||'');setVal('d_setup',o.setup||'');setVal('d_build',o.build||'');setVal('d_payoff',o.payoff||'');setVal('d_hookout',o.hookout||'');
+      d.classList.remove('hidden');toast('AI 에피소드 초안 생성됨 — 수정 후 저장');d.scrollIntoView({behavior:'smooth',block:'nearest'});return;
+    }catch(e){toast('AI 실패: '+e.message+' — 템플릿으로 대체');}
+  }
+  if(ch){var t=epTemplate(ch,tag,val('e_core'));
+    setVal('d_log',t.log);setVal('d_hook',t.HOOK);setVal('d_setup',t.SETUP);setVal('d_build',t.BUILD);setVal('d_payoff',t.PAYOFF);setVal('d_hookout',t.HOOKOUT);}
+  d.classList.remove('hidden');toast(ch?'규칙 템플릿 초안':'초안 폼 표시');d.scrollIntoView({behavior:'smooth',block:'nearest'});}
+/* 캐릭터 — 규칙 기반 추천 적용 (규칙_최신.json 성과 순위 · LLM 아님) */
+async function autoChar(){
+  var r=recommendChar();
+  if(!r){toast('규칙 데이터(규칙_최신.json)가 없어 추천할 수 없습니다');return;}
+  setVal('c_goal','설렘');setVal('c_trig',r.tag);setVal('c_arch',r.arch);setVal('c_name','');setVal('c_id','');
+  var adv=document.querySelector('#tab-addChar .advbox');if(adv)adv.open=true;
+  if(aiOn()){
+    toast('AI가 캐릭터 초안 생성 중…');
+    try{var w=(WORLD&&WORLD.name)||'고등학교',h=(HEROINE&&HEROINE.name)||'여주';
+      var o=await aiJSON('세계관: '+w+'\n여주(고정 상대역): '+h+'\n회수할 1차 트리거: '+r.label+'\n아키타입: '+r.arch+'\n\n이 조건의 남주 캐릭터 1명을 기획하라. JSON 키만:\n{"name":"이름","gap_surface":"겉모습·강한 면","gap_hidden":"그 사람 앞에서만 드러나는 약한 면","signature_action":"시그니처 행동 한 문장","first3s_hook":"첫 3초 훅 장면 한 문장"}');
+      setVal('c_name',o.name||'');setVal('c_gs',o.gap_surface||'');setVal('c_gh',o.gap_hidden||'');setVal('c_sig',o.signature_action||'');setVal('c_hook',o.first3s_hook||'');
+      renderCharRec();toast('AI 캐릭터 초안 생성됨 — 확인 후 생성');return;
+    }catch(e){toast('AI 실패: '+e.message+' — 템플릿으로 대체');}
+  }
+  var tpl=ARCH_TPL[r.arch]||ARCH_TPL['기타'];
+  setVal('c_gs',tpl.gs);setVal('c_gh',tpl.gh);setVal('c_hook',tpl.hook);setVal('c_sig',tpl.sig);
+  renderCharRec();
+  toast('규칙 템플릿으로 채움: '+r.label+' + '+r.arch+(aiOn()?'':' (AI 설정에 키 넣으면 AI 생성)'));
 }
-/* 에피소드 통째 AI 추천 — 주인공·감정·장면 자동 선택 후 초안 생성 */
+/* 에피소드 — 규칙 기반 추천 적용 */
 function autoEp(){
-  setVal('e_char','민재'); setVal('e_trig','jealousy_possession_or_rival'); setVal('e_core','다른 남자와 웃는 걸 봄');
-  genEp();
+  var ch=CHARS.find(function(c){return c.id===val('e_char');});
+  if(!ch){var pub=CHARS.filter(function(c){return c.status==='published';});if(pub.length){setVal('e_char',pub[0].id);ch=pub[0];}}
+  if(!ch){toast('먼저 발행된 캐릭터가 필요합니다');return;}
+  setVal('e_trig',ch.primary_trigger);renderEpRec();genEp();
 }
 function switchTab(tab){document.querySelectorAll('.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
-  ['drafts','addChar','addEp'].forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.classList.toggle('hidden',t!==tab);});}
+  ['drafts','addChar','addEp'].forEach(t=>{const el=document.getElementById('tab-'+t);if(el)el.classList.toggle('hidden',t!==tab);});
+  if(tab==='addChar'&&typeof renderCharRec==='function')renderCharRec();
+  if(tab==='addEp'&&typeof renderEpRec==='function')renderEpRec();}
 document.querySelectorAll('.tabs button').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 /* 스토리보드 10컷 폼 골격 */
 (function buildSbForm(){const el=document.getElementById('sbCuts');if(!el)return;let h='';
@@ -469,6 +741,72 @@ renderTodo();
    실앱 연동 시 render 파이프라인에서 renderPubList() 호출. */
 var TRIG={jealousy_possession_or_rival:'독점욕·질투',protective_claim_or_rescue:'위기구원',breakup_rejection_or_distance:'이별·거리',choice_ultimatum_or_deadline:'직진·최후통첩',love_confession_or_desire:'고백·욕망',threat_danger_or_revenge:'위협·복수',marriage_family_or_pregnancy:'결혼·가족',general_dialogue:'일반대화',humiliation_status_drop_or_bullying:'굴욕·따돌림',misunderstanding_or_accusation:'오해·누명',power_money_or_status:'권력·재력',emotional_question_or_confrontation:'감정추궁·대립',secret_lie_or_reveal:'비밀·폭로',apology_regret_or_sacrifice:'사과·희생'};
 function trigLabel(t){ return TRIG[t]||t||''; }
+
+/* ===== 규칙 기반 추천 (규칙_최신.json 성과 수치 기반 · LLM/환각 없음) ===== */
+var C_TRIG_TAGS={protective_claim_or_rescue:1,jealousy_possession_or_rival:1,choice_ultimatum_or_deadline:1,love_confession_or_desire:1,emotional_question_or_confrontation:1,misunderstanding_or_accusation:1,threat_danger_or_revenge:1,power_money_or_status:1,secret_lie_or_reveal:1};
+var TRIG_ARCH={jealousy_possession_or_rival:'얼음 회장형',power_money_or_status:'얼음 회장형',protective_claim_or_rescue:'다정한 소꿉친구',choice_ultimatum_or_deadline:'열혈 직진남',love_confession_or_desire:'열혈 직진남',threat_danger_or_revenge:'나쁜남자·일진',secret_lie_or_reveal:'미스터리 전학생',emotional_question_or_confrontation:'기타',misunderstanding_or_accusation:'기타'};
+var ARCH_TPL={
+  '얼음 회장형':{gs:'전교 1등·완벽·무표정',gh:'그 사람 앞에서만 말 더듬고 귀 빨개짐',sig:'여주 사물함에 몰래 우산·노트',hook:'무리를 다 지나치다 여주 앞에서만 멈칫, 프린트 툭 건네고 사라짐'},
+  '다정한 소꿉친구':{gs:'늘 웃고 다 받아주는 안전기지',gh:'위험할 때만 눈빛·목소리가 확 변함',sig:'넘어지기 직전 팔로 막아주고 "지나가다"',hook:'넘어지려는 순간 가방끈을 잡아줌'},
+  '나쁜남자·일진':{gs:'위험하고 규칙 밖',gh:'여주에게만 집요하고 서툴게 신경 씀',sig:'담배 끄며 다가와 한마디',hook:'"넌 왜 안 무서워하냐" 하며 다가옴'},
+  '열혈 직진남':{gs:'숨김없이 좋아함, 라이벌에 발끈',gh:'그 앞에서만 말이 서툴고 귀가 빨개짐',sig:'매일 아침 쪽지·정리된 노트를 사물함에',hook:'경기 중 관중석 여주만 찾아보고 씩 웃음'},
+  '미스터리 전학생':{gs:'정체·과거가 수수께끼',gh:'여주와의 접점에서만 흔들림',sig:'여주만 빤히 응시하다 사라짐',hook:'전학 인사 중 여주만 빤히 응시 → 컷'},
+  '기타':{gs:'',gh:'',sig:'',hook:''}};
+function recommendChar(){
+  if(!RULES||!RULES.trigger_ranking_grammar)return null;
+  var used={};(_arr(function(){return CHARS;})).forEach(function(c){used[c.primary_trigger]=true;});
+  var ranked=RULES.trigger_ranking_grammar.filter(function(t){return C_TRIG_TAGS[t.tag];});
+  var t=ranked.filter(function(x){return x.median_er>=baseER()&&!used[x.tag];})[0]||ranked.filter(function(x){return !used[x.tag];})[0]||ranked[0];
+  if(!t)return null;
+  var rank=RULES.trigger_ranking_grammar.findIndex(function(x){return x.tag===t.tag;})+1;
+  return {tag:t.tag,label:t.label,er:t.median_er,save:t.median_save_rate,n:t.n,rank:rank,total:RULES.trigger_ranking_grammar.length,arch:TRIG_ARCH[t.tag]||'기타',above:t.median_er>=baseER()};
+}
+function renderCharRec(){var box=document.getElementById('recChar');if(!box)return;
+  if(!RULES){box.innerHTML='🤖 <b>규칙 기반 추천</b> <span class="k">규칙_최신.json 로드 후 표시됩니다.</span>';return;}
+  var r=recommendChar();if(!r){box.innerHTML='🤖 <b>규칙 기반 추천</b> <span class="k">추천할 트리거가 없습니다.</span>';return;}
+  box.innerHTML='🤖 <b>규칙 기반 추천</b> — '+esc(r.label)+' + '+esc(r.arch)+' <span class="k">(규칙_최신.json · method=rule · 환각 없음)</span>'
+    +'<div style="margin-top:5px"><span class="k">데이터 칩 — 규칙엔진 고정 수치</span><br>'
+    +'<span class="chip data">ER '+r.er+' ('+r.total+'개 중 '+r.rank+'위)</span>'
+    +'<span class="chip data">저장률 '+r.save+'</span>'
+    +'<span class="chip data">표본 n='+r.n+'</span>'
+    +'<span class="chip '+(r.above?'':'warn')+'">'+(r.above?'baseline('+baseER()+') 이상':'⚠ baseline 미만')+'</span></div>'
+    +'<div style="margin-top:5px"><span class="k">판단 — 아직 안 쓴 트리거 중 성과 최상위 → '+esc(r.arch)+' 궁합</span></div>'
+    +'<div style="margin-top:8px"><button class="mini primary" onclick="autoChar()">이 추천으로 폼 채우기</button></div>';
+}
+function renderEpRec(){var box=document.getElementById('recEp');if(!box)return;
+  if(!RULES){box.innerHTML='🤖 <b>추천 이유</b> <span class="k">규칙_최신.json 로드 후 표시됩니다.</span>';return;}
+  var ch=CHARS.find(function(c){return c.id===val('e_char');});
+  if(!ch){box.innerHTML='🤖 <b>추천 이유</b> <span class="k">주인공(STEP 1)을 고르면 규칙 기반 추천이 표시됩니다.</span>';return;}
+  var tag=ch.primary_trigger,ti=(RULES.trigger_ranking_grammar||[]).find(function(t){return t.tag===tag;});
+  var er=ti?ti.median_er:'?',above=ti&&ti.median_er>=baseER();
+  box.innerHTML='🤖 <b>이 감정을 추천하는 이유</b> <span class="k">(규칙_최신.json · method=rule · 환각 없음)</span>'
+    +'<div style="margin-top:5px"><span class="k">데이터 칩</span> '
+    +'<span class="chip data">'+esc(trigLabel(tag))+' ER '+er+'</span>'
+    +'<span class="chip data">주인공 '+esc(ch.name||ch.id)+' 트리거와 일치(회수)</span>'
+    +(ti?('<span class="chip '+(above?'':'warn')+'">'+(above?'baseline 이상':'⚠ baseline 미만')+'</span>'):'')+'</div>'
+    +'<div style="margin-top:8px"><button class="mini primary" onclick="autoEp()">이 추천으로 초안 채우기</button></div>';
+}
+function epTemplate(ch,tag,core){var t=trigLabel(tag),n=ch.name||ch.id,h=(HEROINE&&HEROINE.name)||'여주';
+  return {log:(core?core+' — ':'')+n+'가 '+t+'을(를) 정점에서 터뜨리는 30초.',
+    HOOK:'0-3초: '+n+'가 '+t+' 단서를 던진다 (얼굴만 X, 관계 갈등 함께).',
+    SETUP:'3-12초: 왜 이 상황인지 최소 정보. '+h+'와의 관계 힌트.',
+    BUILD:'12-30초: 라이벌/위기 투입, '+t+' 작동.',
+    PAYOFF:'30-45초: '+t+' 회수 정점.',
+    HOOKOUT:'마지막 3초: 다음 화 떡밥.'};}
+
+/* ===== AI 초안 생성 (OpenAI · 키는 이 브라우저 localStorage에만) ===== */
+function aiKey(){return (localStorage.getItem('OPENAI_KEY')||'').trim();}
+function aiModel(){return localStorage.getItem('OPENAI_MODEL')||'gpt-4o-mini';}
+function aiOn(){return !!aiKey();}
+function initAiCfg(){var k=document.getElementById('ai_key');if(k)k.value=aiKey();var m=document.getElementById('ai_model');if(m&&localStorage.getItem('OPENAI_MODEL'))m.value=aiModel();var s=document.getElementById('ai_cfgmsg');if(s)s.textContent=aiOn()?'활성화됨':'키 없음';}
+function saveAiCfg(){localStorage.setItem('OPENAI_KEY',document.getElementById('ai_key').value.trim());localStorage.setItem('OPENAI_MODEL',document.getElementById('ai_model').value);document.getElementById('ai_cfgmsg').textContent=aiOn()?'활성화됨':'키 없음';toast('AI 설정 저장');if(typeof renderCharRec==='function')renderCharRec();if(typeof renderEpRec==='function')renderEpRec();}
+function clearAiCfg(){localStorage.removeItem('OPENAI_KEY');var k=document.getElementById('ai_key');if(k)k.value='';document.getElementById('ai_cfgmsg').textContent='삭제됨';toast('키 삭제');}
+var AI_SYS='너는 한국 숏폼(30~45초) 세로 드라마 기획자다. 훅이 강하고 캐릭터의 트리거를 정점에서 회수하는 기획을 한다. 항상 지정된 키만 가진 JSON 하나로만 답한다.';
+async function aiJSON(user){if(!aiOn())throw new Error('OpenAI 키 없음 — 상단 AI 설정에서 입력');
+  var r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+aiKey()},
+    body:JSON.stringify({model:aiModel(),temperature:0.9,response_format:{type:'json_object'},messages:[{role:'system',content:AI_SYS},{role:'user',content:user}]})});
+  if(!r.ok){var t=await r.text();throw new Error(r.status===401?'키 인증 실패(401)':'호출 실패 '+r.status+' '+t.slice(0,80));}
+  return JSON.parse((await r.json()).choices[0].message.content);}
 var DEMO_CHARS=[
   {name:'민재', archetype:'얼음 회장형', primary:'위기구원', secondary:'독점욕', goal:'설렘',
    gs:'전교 1등 학생회장, 늘 냉정', gh:'여주 위험엔 먼저 움직임', hook:'넘어지는 여주를 말없이 붙잡는다',
@@ -482,14 +820,16 @@ var DEMO_CHARS=[
 ];
 function pubData(){
   var cs=_arr(function(){return CHARS;});
-  if(!cs.length) return DEMO_CHARS;
+  var connected=(typeof CONNECTED!=='undefined'&&CONNECTED);
+  if(connected){ cs=cs.filter(function(c){return c.status==='published';}); }
+  else if(!cs.length){ return DEMO_CHARS; }
   var eps=_arr(function(){return EPS;});
   return cs.map(function(c){
-    var ce=eps.filter(function(e){return e.character_id===c.id;});
-    return {name:c.name||c.id, archetype:c.archetype||'',
+    var ce=eps.filter(function(e){return e.character_id===c.id && (!connected || e.status==='published');});
+    return {id:c.id, __folderId:c.__folderId, name:c.name||c.id, archetype:c.archetype||'',
       primary:trigLabel(c.primary_trigger), secondary:trigLabel(c.secondary_trigger),
       goal:c.goal||'', gs:c.gap_surface||'', gh:c.gap_hidden||'', hook:c.first3s_hook||'',
-      eps:ce.map(function(e){return {title:e.title||e.id, trig:trigLabel(e.target_trigger), why:((e.recommendation&&e.recommendation.reasons)?e.recommendation.reasons.join(' · '):'')};})};
+      eps:ce.map(function(e){return {id:e.id, __fileId:e.__fileId, title:e.title||e.id, trig:trigLabel(e.target_trigger), why:((e.recommendation&&e.recommendation.reasons)?e.recommendation.reasons.join(' · '):'')};})};
   });
 }
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
@@ -525,17 +865,24 @@ function editChar(ci){var c=pubData()[ci]; if(!c)return; switchTab('addChar');
   toast('"'+c.name+'" 수정 모드로 불러왔어요 (데모)');
   document.getElementById('tab-addChar').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function delChar(ci){var list=pubData(); var c=list[ci]; if(!c)return;
-  if(!confirm('캐릭터 "'+c.name+'"'+(c.eps&&c.eps.length?' 와 에피소드 '+c.eps.length+'개':'')+'를 삭제할까요? 되돌릴 수 없습니다.')) return;
-  list.splice(ci,1); renderPubList(); fillEpFilter(); renderEpList(); toast('"'+c.name+'" 삭제됨 (데모)');
+async function delChar(ci){var c=pubData()[ci]; if(!c)return;
+  var cnt=c.eps?c.eps.length:0;
+  if(!confirm('캐릭터 "'+c.name+'"'+(cnt?' 와 에피소드 '+cnt+'개':'')+'를 삭제할까요? (Drive 휴지통으로 이동 · 30일 내 복구 가능)')) return;
+  if(!CONNECTED){toast('데모 모드 — 로그인 후 실제 삭제됩니다');return;}
+  try{toast('삭제 중…');if(c.__folderId)await driveTrash(c.__folderId);
+    CHARS=CHARS.filter(function(x){return x.id!==c.id;});EPS=EPS.filter(function(e){return e.character_id!==c.id;});
+    toast('"'+c.name+'" 삭제됨');renderAll();}catch(e){toast('삭제 실패: '+e.message);}
 }
 function editEp(ci,ei){var c=pubData()[ci]; if(!c||!c.eps[ei])return; switchTab('addEp');
   setVal('e_char',c.name); toast('"'+c.eps[ei].title+'" 수정 모드로 불러왔어요 (데모)');
   document.getElementById('tab-addEp').scrollIntoView({behavior:'smooth',block:'nearest'});
 }
-function delEp(ci,ei){var c=pubData()[ci]; if(!c||!c.eps[ei])return;
-  if(!confirm('에피소드 "'+c.eps[ei].title+'"를 삭제할까요?')) return;
-  c.eps.splice(ei,1); renderPubList(); renderEpList(); fillEpFilter(); toast('에피소드 삭제됨 (데모)');
+async function delEp(ci,ei){var c=pubData()[ci]; if(!c||!c.eps[ei])return;var e=c.eps[ei];
+  if(!confirm('에피소드 "'+e.title+'"를 삭제할까요? (Drive 휴지통으로 이동)')) return;
+  if(!CONNECTED){toast('데모 모드 — 로그인 후 실제 삭제됩니다');return;}
+  try{toast('삭제 중…');if(e.__fileId)await driveTrash(e.__fileId);
+    EPS=EPS.filter(function(x){return x.__fileId!==e.__fileId;});
+    toast('에피소드 삭제됨');renderAll();}catch(e2){toast('삭제 실패: '+e2.message);}
 }
 function scrollChars(dir){ var t=document.getElementById('charTrack'); if(!t) return; t.scrollBy({left:dir*Math.max(226, t.clientWidth*0.8), behavior:'smooth'}); }
 /* ===== 에피소드 항목 (캐릭터별 · 드롭다운 필터) ===== */
@@ -634,6 +981,7 @@ renderPubList(); fillEpFilter(); renderEpList();
   ];
   window.renderMainstory(SAMPLE);
 })();
+initAiCfg();
 </script>
 </body>
 </html>
