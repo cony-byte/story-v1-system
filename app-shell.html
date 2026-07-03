@@ -166,16 +166,12 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
     <button class="mini del" onclick="resetWorkspace()" title="모든 캐릭터·에피소드 삭제 (세계관·여주·규칙엔진은 유지)">🧹 데이터 초기화</button> <span id="status"></span></div>
 
   <details class="card" id="aiCard" style="padding:12px">
-    <summary style="cursor:pointer;font-weight:700">🤖 AI 설정 <span class="muted" style="font-weight:400">— OpenAI 키로 초안 자동생성</span></summary>
+    <summary style="cursor:pointer;font-weight:700">🤖 AI 설정 <span class="muted" style="font-weight:400">— OpenRouter 키로 초안 자동생성</span></summary>
     <div class="note info" style="margin:8px 0">키는 <b>이 브라우저에만</b> 저장되고(localStorage) 서버로 전송되지 않습니다. 공개 사이트에 노출되지 않아요.</div>
-    <label>OpenAI API 키 <input id="ai_key" type="password" placeholder="sk-..." autocomplete="off"></label>
-    <label>모델 <select id="ai_model">
-      <option value="gpt-4o-mini">gpt-4o-mini (빠르고 저렴)</option>
-      <option value="gpt-4o">gpt-4o (고품질)</option>
-      <option value="gpt-4.1-mini">gpt-4.1-mini</option>
-    </select></label>
+    <label>OpenRouter API 키 <input id="ai_key" type="password" placeholder="sk-or-..." autocomplete="off"></label>
+    <div class="k" style="margin-top:6px">모델: <b id="ai_model_disp"></b> <span class="muted">(고정 — 관리자가 코드에서 설정)</span></div>
     <div style="margin-top:10px"><button class="mini primary" onclick="saveAiCfg()">저장</button> <button class="mini" onclick="clearAiCfg()">키 삭제</button> <span id="ai_cfgmsg" class="k"></span></div>
-    <div class="k" style="margin-top:6px">키 발급: platform.openai.com/api-keys · 사용 요금은 본인 OpenAI 계정에 청구됩니다.</div>
+    <div class="k" style="margin-top:6px">키 발급: openrouter.ai/keys · 사용 요금은 본인 OpenRouter 계정에 청구됩니다.</div>
   </details>
 
   <div class="card">
@@ -389,6 +385,8 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
    ========================================================= */
 var CONFIG={CLIENT_ID:"279160268866-6btq4gvj3g1e725vbk370kh8j2otlgom.apps.googleusercontent.com",
   SCOPE:"https://www.googleapis.com/auth/drive",ROOT_FOLDER_NAME:"기획-v2"};
+/* ===== AI 모델 고정 — 관리자만 여기서 변경. OpenRouter 모델 ID(제공사/모델). 목록: openrouter.ai/models ===== */
+var AI_MODEL="anthropic/claude-sonnet-5";
 var TOKEN=null,tokenClient=null,ROOT_ID=null,FOLD={};
 var CHARS=[],EPS=[],STORYLIST=[],STORIES=[],SBS=[],RULES=null,WORLD=null,HEROINE=null;
 var CONNECTED=false,SELECTED_CHAR=null;
@@ -795,18 +793,19 @@ function epTemplate(ch,tag,core){var t=trigLabel(tag),n=ch.name||ch.id,h=(HEROIN
     HOOKOUT:'마지막 3초: 다음 화 떡밥.'};}
 
 /* ===== AI 초안 생성 (OpenAI · 키는 이 브라우저 localStorage에만) ===== */
-function aiKey(){return (localStorage.getItem('OPENAI_KEY')||'').trim();}
-function aiModel(){return localStorage.getItem('OPENAI_MODEL')||'gpt-4o-mini';}
+function aiKey(){return (localStorage.getItem('OR_KEY')||'').trim();}
+function aiModel(){return AI_MODEL;}
 function aiOn(){return !!aiKey();}
-function initAiCfg(){var k=document.getElementById('ai_key');if(k)k.value=aiKey();var m=document.getElementById('ai_model');if(m&&localStorage.getItem('OPENAI_MODEL'))m.value=aiModel();var s=document.getElementById('ai_cfgmsg');if(s)s.textContent=aiOn()?'활성화됨':'키 없음';}
-function saveAiCfg(){localStorage.setItem('OPENAI_KEY',document.getElementById('ai_key').value.trim());localStorage.setItem('OPENAI_MODEL',document.getElementById('ai_model').value);document.getElementById('ai_cfgmsg').textContent=aiOn()?'활성화됨':'키 없음';toast('AI 설정 저장');if(typeof renderCharRec==='function')renderCharRec();if(typeof renderEpRec==='function')renderEpRec();}
-function clearAiCfg(){localStorage.removeItem('OPENAI_KEY');var k=document.getElementById('ai_key');if(k)k.value='';document.getElementById('ai_cfgmsg').textContent='삭제됨';toast('키 삭제');}
+function initAiCfg(){var k=document.getElementById('ai_key');if(k)k.value=aiKey();var d=document.getElementById('ai_model_disp');if(d)d.textContent=AI_MODEL;var s=document.getElementById('ai_cfgmsg');if(s)s.textContent=aiOn()?'활성화됨':'키 없음';}
+function saveAiCfg(){localStorage.setItem('OR_KEY',document.getElementById('ai_key').value.trim());document.getElementById('ai_cfgmsg').textContent=aiOn()?'활성화됨':'키 없음';toast('AI 설정 저장');if(typeof renderCharRec==='function')renderCharRec();if(typeof renderEpRec==='function')renderEpRec();}
+function clearAiCfg(){localStorage.removeItem('OR_KEY');var k=document.getElementById('ai_key');if(k)k.value='';document.getElementById('ai_cfgmsg').textContent='삭제됨';toast('키 삭제');}
 var AI_SYS='너는 한국 숏폼(30~45초) 세로 드라마 기획자다. 훅이 강하고 캐릭터의 트리거를 정점에서 회수하는 기획을 한다. 항상 지정된 키만 가진 JSON 하나로만 답한다.';
-async function aiJSON(user){if(!aiOn())throw new Error('OpenAI 키 없음 — 상단 AI 설정에서 입력');
-  var r=await fetch('https://api.openai.com/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+aiKey()},
-    body:JSON.stringify({model:aiModel(),temperature:0.9,response_format:{type:'json_object'},messages:[{role:'system',content:AI_SYS},{role:'user',content:user}]})});
-  if(!r.ok){var t=await r.text();throw new Error(r.status===401?'키 인증 실패(401)':'호출 실패 '+r.status+' '+t.slice(0,80));}
-  return JSON.parse((await r.json()).choices[0].message.content);}
+function parseAiJson(txt){txt=String(txt||'');try{return JSON.parse(txt);}catch(e){}var m=txt.match(/```(?:json)?\s*([\s\S]*?)```/);if(m){try{return JSON.parse(m[1]);}catch(e2){}}var s=txt.indexOf('{'),en=txt.lastIndexOf('}');if(s>=0&&en>s)return JSON.parse(txt.slice(s,en+1));throw new Error('JSON 파싱 실패');}
+async function aiJSON(user){if(!aiOn())throw new Error('OpenRouter 키 없음 — 상단 AI 설정에서 입력');
+  var r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+aiKey(),'HTTP-Referer':location.origin,'X-Title':'숏폼 기획 대시보드'},
+    body:JSON.stringify({model:AI_MODEL,temperature:0.9,response_format:{type:'json_object'},messages:[{role:'system',content:AI_SYS},{role:'user',content:user}]})});
+  if(!r.ok){var t=await r.text();throw new Error(r.status===401?'키 인증 실패(401)':'호출 실패 '+r.status+' '+t.slice(0,100));}
+  var j=await r.json();var c=j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;return parseAiJson(c);}
 var DEMO_CHARS=[
   {name:'민재', archetype:'얼음 회장형', primary:'위기구원', secondary:'독점욕', goal:'설렘',
    gs:'전교 1등 학생회장, 늘 냉정', gh:'여주 위험엔 먼저 움직임', hook:'넘어지는 여주를 말없이 붙잡는다',
