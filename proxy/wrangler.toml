@@ -1,0 +1,13 @@
+name = "story-ai-proxy"
+main = "openrouter-proxy.js"
+compatibility_date = "2024-11-01"
+
+# 배포 후 OpenRouter 키는 secret으로 넣으세요 (CLI):
+#   wrangler secret put OPENROUTER_KEY
+#
+# (선택) 공개 변수 — 기본값이 코드에 있으니 다를 때만 주석 해제:
+# [vars]
+# ALLOWED_DOMAIN = "tain.ai"
+# ALLOWED_EMAILS = "someone@gmail.com, other@company.com"
+# MODEL = "anthropic/claude-sonnet-5"
+# ALLOW_ORIGIN = "https://cony-byte.github.io"
