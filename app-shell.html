@@ -166,12 +166,10 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
     <button class="mini del" onclick="resetWorkspace()" title="모든 캐릭터·에피소드 삭제 (세계관·여주·규칙엔진은 유지)">🧹 데이터 초기화</button> <span id="status"></span></div>
 
   <details class="card" id="aiCard" style="padding:12px">
-    <summary style="cursor:pointer;font-weight:700">🤖 AI 설정 <span class="muted" style="font-weight:400">— OpenRouter 키로 초안 자동생성</span></summary>
-    <div class="note info" style="margin:8px 0">키는 <b>이 브라우저에만</b> 저장되고(localStorage) 서버로 전송되지 않습니다. 공개 사이트에 노출되지 않아요.</div>
-    <label>OpenRouter API 키 <input id="ai_key" type="password" placeholder="sk-or-..." autocomplete="off"></label>
-    <div class="k" style="margin-top:6px">모델: <b id="ai_model_disp"></b> <span class="muted">(고정 — 관리자가 코드에서 설정)</span></div>
-    <div style="margin-top:10px"><button class="mini primary" onclick="saveAiCfg()">저장</button> <button class="mini" onclick="clearAiCfg()">키 삭제</button> <span id="ai_cfgmsg" class="k"></span></div>
-    <div class="k" style="margin-top:6px">키 발급: openrouter.ai/keys · 사용 요금은 본인 OpenRouter 계정에 청구됩니다.</div>
+    <summary style="cursor:pointer;font-weight:700">🤖 AI 설정 <span class="muted" style="font-weight:400">— 팀 공용 프록시</span></summary>
+    <div class="note info" style="margin:8px 0">AI 초안 생성은 <b>팀 공용 서버(프록시)</b>를 통해 실행됩니다. 개인 API 키 입력이 필요 없어요 — <b>구글 로그인만</b> 하면 됩니다.</div>
+    <div class="k" style="margin-top:4px">모델: <b id="ai_model_disp"></b> <span class="muted">(관리자가 코드에서 고정)</span></div>
+    <div class="k" style="margin-top:4px">상태: <span id="ai_cfgmsg"></span></div>
   </details>
 
   <div class="card">
@@ -385,8 +383,12 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
    ========================================================= */
 var CONFIG={CLIENT_ID:"279160268866-6btq4gvj3g1e725vbk370kh8j2otlgom.apps.googleusercontent.com",
   SCOPE:"https://www.googleapis.com/auth/drive",ROOT_FOLDER_NAME:"기획-v2"};
-/* ===== AI 모델 고정 — 관리자만 여기서 변경. OpenRouter 모델 ID(제공사/모델). 목록: openrouter.ai/models ===== */
+/* ===== AI 모델 표시용 (실제 강제는 프록시가) — OpenRouter 모델 ID ===== */
 var AI_MODEL="anthropic/claude-sonnet-5";
+/* ===== AI 프록시 URL — OpenRouter 키가 숨겨진 Cloudflare Worker 주소.
+   proxy/README.md 대로 배포 후 여기에 입력 (예: https://story-ai-proxy.xxx.workers.dev).
+   비워두면 AI 대신 규칙 템플릿으로 동작. 팀원은 키 입력 불필요 — 로그인만 하면 됨. ===== */
+var AI_PROXY_URL="";
 var TOKEN=null,tokenClient=null,ROOT_ID=null,FOLD={};
 var CHARS=[],EPS=[],STORYLIST=[],STORIES=[],SBS=[],RULES=null,WORLD=null,HEROINE=null;
 var CONNECTED=false,SELECTED_CHAR=null;
@@ -793,18 +795,17 @@ function epTemplate(ch,tag,core){var t=trigLabel(tag),n=ch.name||ch.id,h=(HEROIN
     HOOKOUT:'마지막 3초: 다음 화 떡밥.'};}
 
 /* ===== AI 초안 생성 (OpenAI · 키는 이 브라우저 localStorage에만) ===== */
-function aiKey(){return (localStorage.getItem('OR_KEY')||'').trim();}
 function aiModel(){return AI_MODEL;}
-function aiOn(){return !!aiKey();}
-function initAiCfg(){var k=document.getElementById('ai_key');if(k)k.value=aiKey();var d=document.getElementById('ai_model_disp');if(d)d.textContent=AI_MODEL;var s=document.getElementById('ai_cfgmsg');if(s)s.textContent=aiOn()?'활성화됨':'키 없음';}
-function saveAiCfg(){localStorage.setItem('OR_KEY',document.getElementById('ai_key').value.trim());document.getElementById('ai_cfgmsg').textContent=aiOn()?'활성화됨':'키 없음';toast('AI 설정 저장');if(typeof renderCharRec==='function')renderCharRec();if(typeof renderEpRec==='function')renderEpRec();}
-function clearAiCfg(){localStorage.removeItem('OR_KEY');var k=document.getElementById('ai_key');if(k)k.value='';document.getElementById('ai_cfgmsg').textContent='삭제됨';toast('키 삭제');}
+function aiOn(){return !!AI_PROXY_URL;} /* 프록시가 설정되면 활성 — 팀원은 로그인만, 개인 키 불필요 */
+function initAiCfg(){var d=document.getElementById('ai_model_disp');if(d)d.textContent=AI_MODEL;var s=document.getElementById('ai_cfgmsg');if(s)s.textContent=aiOn()?'활성(프록시 연결됨)':'프록시 미설정 — 규칙 템플릿으로 동작';}
 var AI_SYS='너는 한국 숏폼(30~45초) 세로 드라마 기획자다. 훅이 강하고 캐릭터의 트리거를 정점에서 회수하는 기획을 한다. 항상 지정된 키만 가진 JSON 하나로만 답한다.';
 function parseAiJson(txt){txt=String(txt||'');try{return JSON.parse(txt);}catch(e){}var m=txt.match(/```(?:json)?\s*([\s\S]*?)```/);if(m){try{return JSON.parse(m[1]);}catch(e2){}}var s=txt.indexOf('{'),en=txt.lastIndexOf('}');if(s>=0&&en>s)return JSON.parse(txt.slice(s,en+1));throw new Error('JSON 파싱 실패');}
-async function aiJSON(user){if(!aiOn())throw new Error('OpenRouter 키 없음 — 상단 AI 설정에서 입력');
-  var r=await fetch('https://openrouter.ai/api/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+aiKey(),'HTTP-Referer':location.origin,'X-Title':'숏폼 기획 대시보드'},
-    body:JSON.stringify({model:AI_MODEL,temperature:0.9,response_format:{type:'json_object'},messages:[{role:'system',content:AI_SYS},{role:'user',content:user}]})});
-  if(!r.ok){var t=await r.text();throw new Error(r.status===401?'키 인증 실패(401)':'호출 실패 '+r.status+' '+t.slice(0,100));}
+async function aiJSON(user){
+  if(!AI_PROXY_URL)throw new Error('AI 프록시 미설정 (관리자에게 문의)');
+  if(!TOKEN)throw new Error('로그인이 필요합니다');
+  var r=await fetch(AI_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},
+    body:JSON.stringify({temperature:0.9,response_format:{type:'json_object'},messages:[{role:'system',content:AI_SYS},{role:'user',content:user}]})});
+  if(!r.ok){var t=await r.text();throw new Error(r.status===403?'AI 사용 권한 없음(허용 목록 아님)':(r.status===401?'로그인 만료 — 재로그인':'AI 호출 실패 '+r.status+' '+t.slice(0,120)));}
   var j=await r.json();var c=j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;return parseAiJson(c);}
 var DEMO_CHARS=[
   {name:'민재', archetype:'얼음 회장형', primary:'위기구원', secondary:'독점욕', goal:'설렘',
