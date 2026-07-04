@@ -83,42 +83,57 @@ def pct_bucket(rank, total):
 
 # ---------- 데이터 칩 (사실 · 백엔드 공통, 변형 금지) ----------
 def data_chips(rules, tag, is_unused):
-    """규칙엔진 근거 칩. (강점칩, 주의칩) 튜플 반환."""
+    """규칙엔진 근거 칩. (강점칩, 주의칩) 튜플 반환.
+    - low_sample 태그: 순위·저장률·도달 수치 칩을 내지 않고 '표본 수집 중'만 표기
+      (n<4 수치는 노이즈 — 표본 확충 후 자동으로 수치 칩 복귀).
+    - 성과 표현은 전부 "현 표본 기준" — 크롤링 배치가 갱신되면 사실이 바뀌는 값이므로.
+    - ER이 기준선 미달이면 순위와 무관하게 강점이 아니라 주의 칩으로 낸다."""
     base = rules["baseline"]
     entry, rank, total = find_entry(rules, tag)
     strong, notes = [], []
     if entry is None:
         return [], [f"⚠ '{tag}' 은(는) 규칙엔진 랭킹에 없음 — 데이터 근거 없음"]
 
-    if rank == 1:
-        strong.append("몰입도(ER) 전체 1위")
+    n = entry.get("n")
+    if entry.get("low_sample"):
+        strong.append(f"표본 수집 중(n={n}편) — 실험 가치 있음, 수치 근거는 표본 확충 후 표기")
+        if is_unused:
+            strong.append("아직 안 쓴 트리거")
+        return strong, notes
+
+    # 기준선 비교는 -5% 여유 밴드를 둔다: 태그 중앙값이 기준선 주변에 몰려 있어
+    # 엄격 비교로는 상위권 태그까지 전부 '미달'이 되기 때문 (밴드 안 = 기준선 수준).
+    er = entry.get("median_er")
+    below_baseline = (er is not None and base.get("median_er") is not None
+                      and er < base["median_er"] * 0.95)
+    if below_baseline:
+        notes.append(f"⚠ 현 표본 기준 ER 기준선 미달 ({rank}/{total}위) — 단독 트리거로는 주의")
+    elif rank == 1:
+        strong.append("현 표본 기준 몰입도(ER) 1위")
     else:
         bucket = pct_bucket(rank, total)
         if bucket in ("5%", "10%"):
-            strong.append(f"최근 성과 상위 {bucket}")
+            strong.append(f"현 표본 기준 성과 상위 {bucket}")
         else:
-            strong.append(f"몰입도(ER) 상위권 ({rank}/{total})")
+            strong.append(f"현 표본 기준 몰입도(ER) 상위권 ({rank}/{total})")
 
     sr = entry.get("median_save_rate")
     if sr is not None:
         if sr >= base["median_save_rate"] + 0.08:
-            strong.append("저장률 최상위")
+            strong.append("현 표본 기준 저장률 최상위")
         elif sr >= base["median_save_rate"]:
-            strong.append("저장률 baseline 상회")
+            strong.append("현 표본 기준 저장률 baseline 상회")
         else:
-            notes.append("⚠ 저장률 baseline 미만 — 저장 유도 필요")
+            notes.append("⚠ 현 표본 기준 저장률 baseline 미만 — 저장 유도 필요")
 
     mv = entry.get("median_views")
     if mv is not None:
         if mv >= base["median_views"]:
-            strong.append("도달(조회수) 강함")
+            strong.append("현 표본 기준 도달(조회수) 강함")
         else:
-            notes.append("⚠ 도달 낮음 — 초반 훅 보강 필요")
+            notes.append("⚠ 현 표본 기준 도달 낮음 — 초반 훅 보강 필요")
 
-    n = entry.get("n")
-    if entry.get("low_sample"):
-        strong.append(f"표본 적은 블루오션(실험가치↑, n={n}편)")
-    elif n:
+    if n:
         strong.append(f"검증 표본 충분(n={n}편)")
 
     if is_unused:
