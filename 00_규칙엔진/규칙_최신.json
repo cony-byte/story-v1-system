@@ -1,101 +1,57 @@
 {
-  "generated_at": "2026-07-02T19:45:44",
-  "n_videos_total": 100,
+  "generated_at": "2026-07-04T17:28:00",
+  "content_type_filter": "drama_clip",
+  "n_videos_total": 76,
   "n_own_published": 0,
   "baseline": {
-    "median_er": 0.42,
-    "median_save_rate": 0.34,
-    "median_views": 108250.0
+    "median_er": 0.407,
+    "median_save_rate": 0.315,
+    "median_views": 110400.0
   },
   "trigger_ranking_grammar": [
     {
-      "tag": "breakup_rejection_or_distance",
-      "label": "이별·거절",
-      "n": 5,
-      "median_er": 0.497,
-      "median_save_rate": 0.309,
-      "median_views": 23600.0,
+      "tag": "general_dialogue",
+      "label": "일반 대화",
+      "n": 12,
+      "median_er": 0.407,
+      "median_save_rate": 0.315,
+      "median_views": 96750.0,
       "low_sample": false
     },
     {
       "tag": "protective_claim_or_rescue",
       "label": "② 위기구원",
-      "n": 5,
-      "median_er": 0.496,
-      "median_save_rate": 0.456,
-      "median_views": 100300.0,
-      "low_sample": false
-    },
-    {
-      "tag": "jealousy_possession_or_rival",
-      "label": "① 독점욕·질투",
-      "n": 12,
-      "median_er": 0.454,
-      "median_save_rate": 0.333,
-      "median_views": 65050.0,
-      "low_sample": false
-    },
-    {
-      "tag": "choice_ultimatum_or_deadline",
-      "label": "④ 직진·최후통첩",
-      "n": 10,
-      "median_er": 0.454,
-      "median_save_rate": 0.391,
-      "median_views": 89400.0,
+      "n": 4,
+      "median_er": 0.406,
+      "median_save_rate": 0.339,
+      "median_views": 77800.0,
       "low_sample": false
     },
     {
       "tag": "love_confession_or_desire",
       "label": "고백·욕망",
-      "n": 12,
-      "median_er": 0.442,
-      "median_save_rate": 0.354,
+      "n": 10,
+      "median_er": 0.404,
+      "median_save_rate": 0.311,
       "median_views": 178000.0,
-      "low_sample": false
-    },
-    {
-      "tag": "threat_danger_or_revenge",
-      "label": "위협·위험·복수",
-      "n": 12,
-      "median_er": 0.44,
-      "median_save_rate": 0.319,
-      "median_views": 181400.0,
-      "low_sample": false
-    },
-    {
-      "tag": "marriage_family_or_pregnancy",
-      "label": "결혼·가족·임신",
-      "n": 11,
-      "median_er": 0.41,
-      "median_save_rate": 0.309,
-      "median_views": 212300.0,
-      "low_sample": false
-    },
-    {
-      "tag": "general_dialogue",
-      "label": "일반 대화",
-      "n": 17,
-      "median_er": 0.409,
-      "median_save_rate": 0.319,
-      "median_views": 77000.0,
       "low_sample": false
     },
     {
       "tag": "humiliation_status_drop_or_bullying",
       "label": "굴욕·추락·괴롭힘",
-      "n": 6,
-      "median_er": 0.404,
-      "median_save_rate": 0.29,
-      "median_views": 87700.0,
+      "n": 5,
+      "median_er": 0.399,
+      "median_save_rate": 0.271,
+      "median_views": 115900.0,
       "low_sample": false
     },
     {
       "tag": "misunderstanding_or_accusation",
       "label": "오해·누명",
-      "n": 8,
-      "median_er": 0.404,
-      "median_save_rate": 0.29,
-      "median_views": 34000.0,
+      "n": 7,
+      "median_er": 0.399,
+      "median_save_rate": 0.271,
+      "median_views": 38200.0,
       "low_sample": false
     },
     {
@@ -108,12 +64,48 @@
       "low_sample": false
     },
     {
+      "tag": "choice_ultimatum_or_deadline",
+      "label": "④ 직진·최후통첩",
+      "n": 8,
+      "median_er": 0.366,
+      "median_save_rate": 0.307,
+      "median_views": 89400.0,
+      "low_sample": false
+    },
+    {
+      "tag": "breakup_rejection_or_distance",
+      "label": "이별·거절",
+      "n": 2,
+      "median_er": 0.361,
+      "median_save_rate": 0.252,
+      "median_views": 21200.0,
+      "low_sample": true
+    },
+    {
+      "tag": "jealousy_possession_or_rival",
+      "label": "① 독점욕·질투",
+      "n": 8,
+      "median_er": 0.36,
+      "median_save_rate": 0.265,
+      "median_views": 66050.0,
+      "low_sample": false
+    },
+    {
       "tag": "emotional_question_or_confrontation",
       "label": "감정추궁·대립",
-      "n": 30,
-      "median_er": 0.391,
-      "median_save_rate": 0.319,
-      "median_views": 109550.0,
+      "n": 27,
+      "median_er": 0.358,
+      "median_save_rate": 0.3,
+      "median_views": 112200.0,
+      "low_sample": false
+    },
+    {
+      "tag": "marriage_family_or_pregnancy",
+      "label": "결혼·가족·임신",
+      "n": 9,
+      "median_er": 0.358,
+      "median_save_rate": 0.3,
+      "median_views": 212300.0,
       "low_sample": false
     },
     {
@@ -126,9 +118,18 @@
       "low_sample": false
     },
     {
+      "tag": "threat_danger_or_revenge",
+      "label": "위협·위험·복수",
+      "n": 8,
+      "median_er": 0.338,
+      "median_save_rate": 0.287,
+      "median_views": 181400.0,
+      "low_sample": false
+    },
+    {
       "tag": "apology_regret_or_sacrifice",
       "label": "사과·후회·희생",
-      "n": 7,
+      "n": 5,
       "median_er": 0.327,
       "median_save_rate": 0.257,
       "median_views": 27800.0,
@@ -139,20 +140,20 @@
     {
       "tag": "protective_male_or_partner",
       "label": "② 보호남(설정)",
-      "n": 2,
-      "median_er": 0.998,
-      "median_save_rate": 0.827,
-      "median_views": 142850.0,
+      "n": 1,
+      "median_er": 0.536,
+      "median_save_rate": 0.456,
+      "median_views": 185400.0,
       "low_sample": true
     },
     {
-      "tag": "danger_rescue_romance",
-      "label": "② 위기구원(설정)",
-      "n": 4,
-      "median_er": 0.827,
-      "median_save_rate": 0.727,
-      "median_views": 592700.0,
-      "low_sample": false
+      "tag": "forbidden_love",
+      "label": "⑤ 금기의 긴장",
+      "n": 2,
+      "median_er": 0.505,
+      "median_save_rate": 0.43,
+      "median_views": 186450.0,
+      "low_sample": true
     },
     {
       "tag": "breakup_sacrifice_or_noble_idiot",
@@ -164,39 +165,21 @@
       "low_sample": true
     },
     {
-      "tag": "forbidden_love",
-      "label": "⑤ 금기의 긴장",
-      "n": 4,
-      "median_er": 0.44,
-      "median_save_rate": 0.383,
-      "median_views": 96450.0,
-      "low_sample": false
-    },
-    {
-      "tag": "marriage_contract_or_family_pressure",
-      "label": "계약결혼·집안 압박",
-      "n": 8,
-      "median_er": 0.413,
-      "median_save_rate": 0.315,
-      "median_views": 283350.0,
-      "low_sample": false
-    },
-    {
-      "tag": "love_triangle_or_rival",
-      "label": "① 독점욕·질투(설정)",
-      "n": 11,
-      "median_er": 0.41,
-      "median_save_rate": 0.309,
-      "median_views": 100300.0,
-      "low_sample": false
+      "tag": "danger_rescue_romance",
+      "label": "② 위기구원(설정)",
+      "n": 2,
+      "median_er": 0.428,
+      "median_save_rate": 0.357,
+      "median_views": 181400.0,
+      "low_sample": true
     },
     {
       "tag": "general_romance",
       "label": "일반 로맨스",
-      "n": 33,
-      "median_er": 0.409,
-      "median_save_rate": 0.319,
-      "median_views": 91500.0,
+      "n": 28,
+      "median_er": 0.407,
+      "median_save_rate": 0.315,
+      "median_views": 96750.0,
       "low_sample": false
     },
     {
@@ -218,12 +201,21 @@
       "low_sample": false
     },
     {
-      "tag": "revenge_betrayal_or_payback",
-      "label": "복수·배신·응징",
-      "n": 4,
-      "median_er": 0.363,
-      "median_save_rate": 0.266,
-      "median_views": 210150.0,
+      "tag": "marriage_contract_or_family_pressure",
+      "label": "계약결혼·집안 압박",
+      "n": 6,
+      "median_er": 0.382,
+      "median_save_rate": 0.305,
+      "median_views": 283350.0,
+      "low_sample": false
+    },
+    {
+      "tag": "love_triangle_or_rival",
+      "label": "① 독점욕·질투(설정)",
+      "n": 8,
+      "median_er": 0.36,
+      "median_save_rate": 0.265,
+      "median_views": 66050.0,
       "low_sample": false
     },
     {
@@ -252,26 +244,200 @@
       "median_save_rate": 0.258,
       "median_views": 177400.0,
       "low_sample": true
+    },
+    {
+      "tag": "revenge_betrayal_or_payback",
+      "label": "복수·배신·응징",
+      "n": 3,
+      "median_er": 0.317,
+      "median_save_rate": 0.222,
+      "median_views": 390500.0,
+      "low_sample": true
+    }
+  ],
+  "story_type_ranking": [
+    {
+      "tag": "general_romance_drama",
+      "label": "⟨미분류:general_romance_drama⟩",
+      "n": 5,
+      "median_er": 0.496,
+      "median_save_rate": 0.299,
+      "median_views": 174500.0,
+      "low_sample": false
+    },
+    {
+      "tag": "dialogue_conflict_driven",
+      "label": "⟨미분류:dialogue_conflict_driven⟩",
+      "n": 7,
+      "median_er": 0.473,
+      "median_save_rate": 0.36,
+      "median_views": 132100.0,
+      "low_sample": false
+    },
+    {
+      "tag": "fast_cut_tension_driven",
+      "label": "⟨미분류:fast_cut_tension_driven⟩",
+      "n": 4,
+      "median_er": 0.42,
+      "median_save_rate": 0.338,
+      "median_views": 694950.0,
+      "low_sample": false
+    },
+    {
+      "tag": "power_status_romance",
+      "label": "⟨미분류:power_status_romance⟩",
+      "n": 7,
+      "median_er": 0.383,
+      "median_save_rate": 0.321,
+      "median_views": 212300.0,
+      "low_sample": false
+    },
+    {
+      "tag": "marriage_family_drama",
+      "label": "⟨미분류:marriage_family_drama⟩",
+      "n": 2,
+      "median_er": 0.382,
+      "median_save_rate": 0.267,
+      "median_views": 206950.0,
+      "low_sample": true
+    },
+    {
+      "tag": "emotion_reaction_driven",
+      "label": "⟨미분류:emotion_reaction_driven⟩",
+      "n": 13,
+      "median_er": 0.358,
+      "median_save_rate": 0.268,
+      "median_views": 63000.0,
+      "low_sample": false
+    },
+    {
+      "tag": "jealousy_rival_drama",
+      "label": "⟨미분류:jealousy_rival_drama⟩",
+      "n": 4,
+      "median_er": 0.35,
+      "median_save_rate": 0.264,
+      "median_views": 20500.0,
+      "low_sample": false
+    },
+    {
+      "tag": "danger_protection_drama",
+      "label": "⟨미분류:danger_protection_drama⟩",
+      "n": 1,
+      "median_er": 0.322,
+      "median_save_rate": 0.233,
+      "median_views": 23600.0,
+      "low_sample": true
+    },
+    {
+      "tag": "secret_reveal_betrayal_drama",
+      "label": "⟨미분류:secret_reveal_betrayal_drama⟩",
+      "n": 2,
+      "median_er": 0.269,
+      "median_save_rate": 0.177,
+      "median_views": 572350.0,
+      "low_sample": true
+    }
+  ],
+  "hook_type_ranking": [
+    {
+      "tag": "jealousy_rival_hook",
+      "label": "⟨미분류:jealousy_rival_hook⟩",
+      "n": 2,
+      "median_er": 0.936,
+      "median_save_rate": 0.801,
+      "median_views": 146150.0,
+      "low_sample": true
+    },
+    {
+      "tag": "ultimatum_hook",
+      "label": "⟨미분류:ultimatum_hook⟩",
+      "n": 3,
+      "median_er": 0.627,
+      "median_save_rate": 0.544,
+      "median_views": 177400.0,
+      "low_sample": true
+    },
+    {
+      "tag": "marriage_family_hook",
+      "label": "⟨미분류:marriage_family_hook⟩",
+      "n": 1,
+      "median_er": 0.416,
+      "median_save_rate": 0.29,
+      "median_views": 354400.0,
+      "low_sample": true
+    },
+    {
+      "tag": "general_hook",
+      "label": "⟨미분류:general_hook⟩",
+      "n": 18,
+      "median_er": 0.407,
+      "median_save_rate": 0.315,
+      "median_views": 66050.0,
+      "low_sample": false
+    },
+    {
+      "tag": "power_or_money_hook",
+      "label": "⟨미분류:power_or_money_hook⟩",
+      "n": 2,
+      "median_er": 0.368,
+      "median_save_rate": 0.319,
+      "median_views": 234650.0,
+      "low_sample": true
+    },
+    {
+      "tag": "confession_or_desire_hook",
+      "label": "⟨미분류:confession_or_desire_hook⟩",
+      "n": 4,
+      "median_er": 0.344,
+      "median_save_rate": 0.304,
+      "median_views": 176550.0,
+      "low_sample": false
+    },
+    {
+      "tag": "breakup_or_sacrifice_hook",
+      "label": "⟨미분류:breakup_or_sacrifice_hook⟩",
+      "n": 1,
+      "median_er": 0.322,
+      "median_save_rate": 0.233,
+      "median_views": 23600.0,
+      "low_sample": true
+    },
+    {
+      "tag": "threat_or_protection_hook",
+      "label": "⟨미분류:threat_or_protection_hook⟩",
+      "n": 1,
+      "median_er": 0.317,
+      "median_save_rate": 0.222,
+      "median_views": 25200.0,
+      "low_sample": true
+    },
+    {
+      "tag": "emotional_question_hook",
+      "label": "⟨미분류:emotional_question_hook⟩",
+      "n": 13,
+      "median_er": 0.313,
+      "median_save_rate": 0.257,
+      "median_views": 64300.0,
+      "low_sample": false
     }
   ],
   "cut_metrics": {
-    "n_analyzed": 56,
+    "n_analyzed": 45,
     "top_third": {
-      "median_cut_count": 16.5,
-      "median_video_len": 45.9,
-      "median_first3s_closeup": 0.583,
-      "median_closeup_ratio": 0.74,
-      "median_first_cut_dur": 3.002,
-      "median_two_person": 0.222
+      "median_cut_count": 16.0,
+      "median_video_len": 38.033,
+      "median_first3s_closeup": 1.0,
+      "median_closeup_ratio": 0.844,
+      "median_first_cut_dur": 2.736,
+      "median_two_person": 0.217
     },
     "bottom_third": {
-      "median_cut_count": 8.5,
-      "median_video_len": 25.014,
-      "median_first3s_closeup": 1.0,
-      "median_closeup_ratio": 0.849,
-      "median_first_cut_dur": 2.183,
-      "median_two_person": 0.23
+      "median_cut_count": 10.0,
+      "median_video_len": 36.567,
+      "median_first3s_closeup": 0.75,
+      "median_closeup_ratio": 0.809,
+      "median_first_cut_dur": 2.1,
+      "median_two_person": 0.25
     }
-  },
-  "_note": "engine.py 자동 생성물. 새 CSV를 로우데이터/·발행성과/에 넣고 engine.py 재실행 시 갱신됨. (story_type_ranking·hook_type_ranking은 engine.py 재실행 시 함께 생성)"
+  }
 }

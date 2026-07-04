@@ -95,20 +95,27 @@ def load_rows(path, source):
                 "closeup_ratio":   to_float(r.get("summary_closeup_ratio")),
                 "first_cut_dur":   to_float(r.get("summary_first_cut_duration")),
                 "two_person_ratio": to_float(r.get("summary_two_person_ratio")),
+                "content_type": (r.get("content_type") or "").strip(),
             }
     return list(vids.values())
 
-def load_all():
+def load_all(content_type=None):
     vids = []
     for p in sorted(glob.glob(os.path.join(CRAWL_DIR, "*.csv"))):
         vids += load_rows(p, "crawl")
     for p in sorted(glob.glob(os.path.join(OWN_DIR, "*.csv"))):
         vids += load_rows(p, "own_published")
-    # video_id 중복 제거 (여러 CSV 걸쳐)
+    # video_id 중복 제거 (여러 CSV 걸쳐) — content_type 있는 행이 없는 행에 우선
     uniq = {}
     for v in vids:
+        prev = uniq.get(v["video_id"])
+        if prev and prev["content_type"] and not v["content_type"]:
+            continue
         uniq[v["video_id"]] = v
-    return list(uniq.values())
+    vids = list(uniq.values())
+    if content_type:
+        vids = [v for v in vids if v["content_type"] == content_type]
+    return vids
 
 def rank_by_tag(vids, field, min_n=4):
     """태그별 median ER/save_rate/views 집계 후 ER 내림차순 정렬"""
@@ -153,8 +160,8 @@ def cut_metrics(vids):
         }
     return {"n_analyzed": n, "top_third": agg(top), "bottom_third": agg(bottom)}
 
-def build():
-    vids = load_all()
+def build(content_type=None):
+    vids = load_all(content_type)
     own = [v for v in vids if v["source"] == "own_published"]
     baseline = {
         "median_er": median([v["er"] for v in vids]),
@@ -163,6 +170,7 @@ def build():
     }
     rules = {
         "generated_at": datetime.datetime.now().isoformat(timespec="seconds"),
+        "content_type_filter": content_type or "none",
         "n_videos_total": len(vids),
         "n_own_published": len(own),
         "baseline": baseline,
@@ -185,8 +193,10 @@ def write_md(rules):
     b = rules["baseline"]
     L = []
     L.append("# 규칙_최신 (자동 생성)\n")
+    ct = rules.get("content_type_filter", "none")
+    ct_note = f" · content_type={ct} 필터" if ct != "none" else ""
     L.append(f"> 생성 시각: {rules['generated_at']} · 분석 영상 {rules['n_videos_total']}편 "
-             f"(자체발행 {rules['n_own_published']}편 포함)\n")
+             f"(자체발행 {rules['n_own_published']}편 포함){ct_note}\n")
     L.append(f"**전체 기준선** — 반응률 중앙값 {b['median_er']}% · 저장률 {b['median_save_rate']}% · 조회수 {b['median_views']}\n")
 
     L.append("\n## 상황 순위 (대사문법 태그 · 반응률 중앙값)\n")
@@ -226,7 +236,11 @@ def write_md(rules):
     return "\n".join(L)
 
 if __name__ == "__main__":
-    rules = build()
+    import sys
+    ct = None
+    if "--content-type" in sys.argv:
+        ct = sys.argv[sys.argv.index("--content-type") + 1]
+    rules = build(ct)
     with open(os.path.join(BASE, "규칙_최신.json"), "w", encoding="utf-8") as f:
         json.dump(rules, f, ensure_ascii=False, indent=2)
     with open(os.path.join(BASE, "규칙_최신.md"), "w", encoding="utf-8") as f:
