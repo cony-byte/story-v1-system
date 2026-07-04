@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-04T17:28:00",
+  "generated_at": "2026-07-04T18:27:53",
   "content_type_filter": "drama_clip",
   "n_videos_total": 76,
   "n_own_published": 0,
@@ -258,7 +258,7 @@
   "story_type_ranking": [
     {
       "tag": "general_romance_drama",
-      "label": "⟨미분류:general_romance_drama⟩",
+      "label": "일반 로맨스극",
       "n": 5,
       "median_er": 0.496,
       "median_save_rate": 0.299,
@@ -267,7 +267,7 @@
     },
     {
       "tag": "dialogue_conflict_driven",
-      "label": "⟨미분류:dialogue_conflict_driven⟩",
+      "label": "대사 갈등 중심",
       "n": 7,
       "median_er": 0.473,
       "median_save_rate": 0.36,
@@ -276,7 +276,7 @@
     },
     {
       "tag": "fast_cut_tension_driven",
-      "label": "⟨미분류:fast_cut_tension_driven⟩",
+      "label": "빠른 컷 긴장형",
       "n": 4,
       "median_er": 0.42,
       "median_save_rate": 0.338,
@@ -285,7 +285,7 @@
     },
     {
       "tag": "power_status_romance",
-      "label": "⟨미분류:power_status_romance⟩",
+      "label": "권력·지위 로맨스",
       "n": 7,
       "median_er": 0.383,
       "median_save_rate": 0.321,
@@ -294,7 +294,7 @@
     },
     {
       "tag": "marriage_family_drama",
-      "label": "⟨미분류:marriage_family_drama⟩",
+      "label": "결혼·가족극",
       "n": 2,
       "median_er": 0.382,
       "median_save_rate": 0.267,
@@ -303,7 +303,7 @@
     },
     {
       "tag": "emotion_reaction_driven",
-      "label": "⟨미분류:emotion_reaction_driven⟩",
+      "label": "감정 리액션 중심",
       "n": 13,
       "median_er": 0.358,
       "median_save_rate": 0.268,
@@ -312,7 +312,7 @@
     },
     {
       "tag": "jealousy_rival_drama",
-      "label": "⟨미분류:jealousy_rival_drama⟩",
+      "label": "질투·라이벌극",
       "n": 4,
       "median_er": 0.35,
       "median_save_rate": 0.264,
@@ -321,7 +321,7 @@
     },
     {
       "tag": "danger_protection_drama",
-      "label": "⟨미분류:danger_protection_drama⟩",
+      "label": "위기·보호극",
       "n": 1,
       "median_er": 0.322,
       "median_save_rate": 0.233,
@@ -330,7 +330,7 @@
     },
     {
       "tag": "secret_reveal_betrayal_drama",
-      "label": "⟨미분류:secret_reveal_betrayal_drama⟩",
+      "label": "비밀·배신극",
       "n": 2,
       "median_er": 0.269,
       "median_save_rate": 0.177,
@@ -341,7 +341,7 @@
   "hook_type_ranking": [
     {
       "tag": "jealousy_rival_hook",
-      "label": "⟨미분류:jealousy_rival_hook⟩",
+      "label": "질투·라이벌형 훅",
       "n": 2,
       "median_er": 0.936,
       "median_save_rate": 0.801,
@@ -350,7 +350,7 @@
     },
     {
       "tag": "ultimatum_hook",
-      "label": "⟨미분류:ultimatum_hook⟩",
+      "label": "최후통첩형 훅",
       "n": 3,
       "median_er": 0.627,
       "median_save_rate": 0.544,
@@ -359,7 +359,7 @@
     },
     {
       "tag": "marriage_family_hook",
-      "label": "⟨미분류:marriage_family_hook⟩",
+      "label": "결혼·가족형 훅",
       "n": 1,
       "median_er": 0.416,
       "median_save_rate": 0.29,
@@ -368,7 +368,7 @@
     },
     {
       "tag": "general_hook",
-      "label": "⟨미분류:general_hook⟩",
+      "label": "일반 훅",
       "n": 18,
       "median_er": 0.407,
       "median_save_rate": 0.315,
@@ -377,7 +377,7 @@
     },
     {
       "tag": "power_or_money_hook",
-      "label": "⟨미분류:power_or_money_hook⟩",
+      "label": "권력·돈형 훅",
       "n": 2,
       "median_er": 0.368,
       "median_save_rate": 0.319,
@@ -386,7 +386,7 @@
     },
     {
       "tag": "confession_or_desire_hook",
-      "label": "⟨미분류:confession_or_desire_hook⟩",
+      "label": "고백·욕망형 훅",
       "n": 4,
       "median_er": 0.344,
       "median_save_rate": 0.304,
@@ -395,7 +395,7 @@
     },
     {
       "tag": "breakup_or_sacrifice_hook",
-      "label": "⟨미분류:breakup_or_sacrifice_hook⟩",
+      "label": "이별·희생형 훅",
       "n": 1,
       "median_er": 0.322,
       "median_save_rate": 0.233,
@@ -404,7 +404,7 @@
     },
     {
       "tag": "threat_or_protection_hook",
-      "label": "⟨미분류:threat_or_protection_hook⟩",
+      "label": "위협·보호형 훅",
       "n": 1,
       "median_er": 0.317,
       "median_save_rate": 0.222,
@@ -413,7 +413,7 @@
     },
     {
       "tag": "emotional_question_hook",
-      "label": "⟨미분류:emotional_question_hook⟩",
+      "label": "감정 질문형 훅",
       "n": 13,
       "median_er": 0.313,
       "median_save_rate": 0.257,
