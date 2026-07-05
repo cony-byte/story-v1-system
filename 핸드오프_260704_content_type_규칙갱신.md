@@ -1,4 +1,4 @@
-# 핸드오프 — content_type·male_lead 축 가동·발행성과 연결 (2026-07-04 ~ 07-05)
+# 핸드오프 — content_type·male_lead 축 가동·발행성과·대시보드 편집·자동화 연결 (2026-07-04 ~ 07-05)
 
 > 다른 계정/머신에서 이 작업을 그대로 이어받기 위한 문서.
 > **이 저장소(cony-byte/story-v1-system main)가 SSOT다.** 로컬 폴더나 Drive 사본이 이 저장소와 다르면 저장소가 맞다.
@@ -18,9 +18,12 @@
 | `551f047a` | recommend find_entry가 male_lead_ranking 축 조회 → 남주 유형 데이터 칩 활성화 |
 | `4f2f06aa` | 발행성과 템플릿 engine 연결 (복합키·D7 고정·ER 자동계산) + 발행성과_운영.md |
 
-이 밖에 병렬 세션의 커밋: `cbb0ebc8`(고정 상수 대시보드 편집), `5cc5b865`(치환 규칙 프리셋),
+이 밖의 커밋: `cbb0ebc8`(고정 상수 대시보드 편집), `5cc5b865`(치환 규칙 프리셋),
 `499506e0`(**CI: 로우데이터 CSV 커밋 시 규칙 자동 재계산** — `.github/workflows/recalc-rules.yml`),
-`7514aa9e`(recalc-bot의 첫 자동 재계산 커밋). 이제 로우데이터 CSV를 push하면 규칙_최신.json/md는 봇이 갱신한다.
+`7514aa9e`(recalc-bot의 첫 자동 재계산 커밋), `0b484a19`(대시보드 TRIG 폴백 라벨을 엔진 사전과 통일),
+`6e2a3819`(대시보드에 남주 유형 순위 카드). 이제 로우데이터 CSV를 push하면 규칙_최신.json/md는 봇이 갱신한다.
+
+**관련 저장소 3개**: 이 repo(기획 SSOT) + [story-v1-crawler](https://github.com/cony-byte/story-v1-crawler)(크롤링 생산, `publish.py`로 연결) + [story-v1-scripts](https://github.com/cony-byte/story-v1-scripts)(대본 라이브러리, Actions `rebuild-library`가 이 repo 로우데이터를 매일 00시 KST에 읽어 리빌드).
 
 구버전이 필요하면 git 이력에서 꺼내면 된다 (별도 백업 파일 없음).
 
@@ -70,6 +73,13 @@
 - 측정 시점 고정: D+7 기본, D+30은 행 추가(시계열 보존, 집계는 D7만). notes "예시" 행 자동 스킵. 자체발행은 content_type 필터 면제.
 - 절차: Drive 입력 시트 → CSV 내보내기 → `발행성과/` 투입 → engine 재실행.
 
+### 1-8. 대시보드(app-shell.html) — 팀 편집·표시 기능
+- **고정 상수 편집** (`cbb0ebc8`): 세계관·여주 카드의 ✏️ 수정 버튼 → 인라인 폼 → 저장 시 `driveUpdateJson`으로 Drive의 01_세계관.json/02_여주.json 직접 갱신 + 파생 화면 재렌더. id는 참조 고정 키라 잠금.
+- **치환 규칙 프리셋** (`5cc5b865`): 보편 소재 5축(재벌CEO/계약결혼/권력차/정략/조폭)을 세계관 유형별로 번역한 내장 사전 `WORLD_RULE_PRESETS`. 유형 키 8종은 **스키마 v2.1 setting 사전(§3-7)과 동일 체계**. 규칙 기반·LLM 없음 — 팀원은 유형 선택→자동 채우기→저장 3클릭.
+- **남주 유형 순위 카드** (`6e2a3819`): 규칙 카드에 `male_lead_ranking` 테이블. n<10은 recommend 칩과 동일하게 수치 숨기고 "표본 수집 중 · n=N" 필. 랭킹 키가 없으면(구버전 Drive 규칙) 교체 안내 문구가 뜨는 게 의도된 동작.
+- **라벨 원천**: 대시보드 표시 라벨은 규칙_최신.json의 `label` 필드를 그대로 씀 — 엔진 라벨 사전이 바뀌면 JSON 재생성만으로 따라옴. RULES 로드 전 폴백 `TRIG` 사전은 엔진과 용어 통일됨(`0b484a19`) — 앞으로도 엔진 사전 수정 시 함께 맞출 것.
+- 퍼블 배포는 GitHub Pages(cony-byte.github.io/story-v1-system) — repo push로 코드는 자동 배포, **데이터(규칙 JSON)는 Drive 교체 필요**.
+
 ---
 
 ## 2. 다른 계정에서 재현하는 법
@@ -102,7 +112,7 @@ python3 _scripts/recommend.py all
 
 ## 3. 아직 안 끝난 것 (다음 계정이 할 일)
 
-1. **Drive 동기화**: dashboard는 Drive의 `00_규칙엔진/규칙_최신.json`을 런타임에 읽는다(루트는 공유드라이브 '기획-v2' ID 고정). 저장소 갱신본을 그 폴더에 교체 업로드해야 추천 UI가 바뀐다. Drive에 동명 사본 다수 — 같은 이름 업로드는 덮어쓰지 않고 사본을 만드니 **기존 파일 삭제 후 업로드**. (judge.py·recommend.py는 저장소 파일을 직접 읽어 이미 반영됨. CI가 규칙_최신을 자동 갱신해도 **Drive 교체는 여전히 수동**이다. 통짜 업로드용 패키지는 저장소 main 전체를 그대로 쓰면 된다.)
+1. **Drive 동기화**: dashboard는 Drive의 `00_규칙엔진/규칙_최신.json`을 런타임에 읽는다(루트는 공유드라이브 '기획-v2' ID 고정). 저장소 갱신본을 그 폴더에 교체 업로드해야 추천 UI가 바뀐다. Drive에 동명 사본 다수 — 같은 이름 업로드는 덮어쓰지 않고 사본을 만드니 **기존 파일 삭제 후 업로드**. (judge.py·recommend.py는 저장소 파일을 직접 읽어 이미 반영됨. CI가 규칙_최신을 자동 갱신해도 **Drive 교체는 여전히 수동**이다. 통짜 업로드용 패키지는 저장소 main 전체를 그대로 쓰면 된다. 규칙 파일만 교체할 거면 `~/Downloads/규칙_최신.json`(07-05 최신 추출본, male_lead_ranking 포함)을 쓰면 된다 — 이거 하나면 대시보드의 한글 라벨·새 순위·남주 유형 카드가 전부 살아난다.)
 2. **발행성과 실무 합의**: episode_id **복합키 형식**(`char_x/ep_y`)을 실무자와 지금 합의 + Drive 입력 시트의 예시 행을 복합키 형식으로 교정. 소급은 지옥이다.
 3. **male_lead 소급 검수**: `male_lead_confidence`<0.7이 65편 (desc 기반 다수). 자동화 파이프라인의 프레임 기반 재분류 또는 사람 검수로 정제 후 랭킹 재신뢰.
 4. **크롤러 스모크 테스트**: 자동화 파이프라인은 **별도 저장소 https://github.com/cony-byte/story-v1-crawler (private)**에 6단계 전체 구현 완료(`run.py --market EN`, whisper+Claude 분류, 오디오 재시도 포함). crawler `publish.py` → 이 저장소 로우데이터 push → CI 자동 재계산까지 연결 검증됨. **단 실크롤링(TikTok 차단 가능)·YOLO·whisper는 미검증 — 첫 실행은 `--limit 5` 스모크 권장.** 상세는 crawler 저장소의 `HANDOFF.md`.
@@ -119,6 +129,7 @@ python3 _scripts/recommend.py all
 | `~/Downloads/발행성과 템플릿.csv` | 복합키 형식 교정본 (Drive 시트 교정용) |
 | `~/Downloads/260704_스키마v2_분류실험_10편.csv` | v2 분류 실험 뷰 (v1 태그 비교 컬럼 포함) |
 | `~/Downloads/기획-v2/` | 저장소 main 통짜 내보내기 (Drive 업로드용 패키지, 2026-07-05 기준) |
+| `~/Downloads/규칙_최신.json` | repo main 최신 규칙 단일 추출본 — Drive 교체용 (male_lead_ranking·한글 라벨 포함) |
 
 ※ `260701_크롤링_로우데이터_v2.csv`(10편 실험본)는 저장소 `로우데이터/`로 이동 완료.
 스키마 v2 문서 SSOT는 아티팩트: https://claude.ai/public/artifacts/f9918853-0bc0-42f9-8b91-a8cfc2e23501 (JS 렌더링 — 브라우저로 열 것)
