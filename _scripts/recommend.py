@@ -45,7 +45,9 @@ def _ranked(rules, key):
 
 
 def find_entry(rules, tag):
-    for key in ("trigger_ranking_grammar", "trope_ranking"):
+    # male_lead_ranking은 엔진이 저표본 기준 n<10으로 low_sample을 기록하는 축 —
+    # 여기 포함되면 data_chips의 "표본 수집 중" 라벨이 그 기준으로 자동 적용된다.
+    for key in ("trigger_ranking_grammar", "trope_ranking", "male_lead_ranking"):
         rows = _ranked(rules, key)
         for i, r in enumerate(rows, start=1):
             if r["tag"] == tag:
