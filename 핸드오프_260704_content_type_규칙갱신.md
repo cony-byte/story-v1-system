@@ -112,7 +112,8 @@ python3 _scripts/recommend.py all
 
 ## 3. 아직 안 끝난 것 (다음 계정이 할 일)
 
-1. **Drive 동기화**: dashboard는 Drive의 `00_규칙엔진/규칙_최신.json`을 런타임에 읽는다(루트는 공유드라이브 '기획-v2' ID 고정). 저장소 갱신본을 그 폴더에 교체 업로드해야 추천 UI가 바뀐다. Drive에 동명 사본 다수 — 같은 이름 업로드는 덮어쓰지 않고 사본을 만드니 **기존 파일 삭제 후 업로드**. (judge.py·recommend.py는 저장소 파일을 직접 읽어 이미 반영됨. CI가 규칙_최신을 자동 갱신해도 **Drive 교체는 여전히 수동**이다. 통짜 업로드용 패키지는 저장소 main 전체를 그대로 쓰면 된다. 규칙 파일만 교체할 거면 `~/Downloads/규칙_최신.json`(07-05 최신 추출본, male_lead_ranking 포함)을 쓰면 된다 — 이거 하나면 대시보드의 한글 라벨·새 순위·남주 유형 카드가 전부 살아난다.)
+1. ~~Drive 동기화~~ → **✅ 완료 (2026-07-05 02:48)**: 오너가 대시보드 고정 폴더(공유드라이브 기획-v2/00_규칙엔진)의 `규칙_최신.json`을 최신본으로 교체 — 사본 1개·바이트 일치까지 검증됨. 이제 대시보드에 한글 라벨·drama_clip 순위·남주 유형 카드가 반영된다.
+   **단, 이건 반복 루틴이다**: CI(recalc-bot)가 저장소의 규칙_최신을 자동 갱신해도 **Drive 교체는 매번 수동**. 새 크롤링 배치가 규칙을 바꿀 때마다 repo의 `00_규칙엔진/규칙_최신.json`을 받아 같은 방식(기존 파일 삭제 후 업로드 — Drive는 동명 업로드 시 사본을 만들기 때문)으로 교체할 것. judge.py·recommend.py는 저장소 파일을 직접 읽어 교체 불필요.
 2. **발행성과 실무 합의**: episode_id **복합키 형식**(`char_x/ep_y`)을 실무자와 지금 합의 + Drive 입력 시트의 예시 행을 복합키 형식으로 교정. 소급은 지옥이다.
 3. **male_lead 소급 검수**: `male_lead_confidence`<0.7이 65편 (desc 기반 다수). 자동화 파이프라인의 프레임 기반 재분류 또는 사람 검수로 정제 후 랭킹 재신뢰.
 4. **크롤러 스모크 테스트**: 자동화 파이프라인은 **별도 저장소 https://github.com/cony-byte/story-v1-crawler (private)**에 6단계 전체 구현 완료(`run.py --market EN`, whisper+Claude 분류, 오디오 재시도 포함). crawler `publish.py` → 이 저장소 로우데이터 push → CI 자동 재계산까지 연결 검증됨. **단 실크롤링(TikTok 차단 가능)·YOLO·whisper는 미검증 — 첫 실행은 `--limit 5` 스모크 권장.** 상세는 crawler 저장소의 `HANDOFF.md`.
@@ -129,7 +130,7 @@ python3 _scripts/recommend.py all
 | `~/Downloads/발행성과 템플릿.csv` | 복합키 형식 교정본 (Drive 시트 교정용) |
 | `~/Downloads/260704_스키마v2_분류실험_10편.csv` | v2 분류 실험 뷰 (v1 태그 비교 컬럼 포함) |
 | `~/Downloads/기획-v2/` | 저장소 main 통짜 내보내기 (Drive 업로드용 패키지, 2026-07-05 기준) |
-| `~/Downloads/규칙_최신.json` | repo main 최신 규칙 단일 추출본 — Drive 교체용 (male_lead_ranking·한글 라벨 포함) |
+| `~/Downloads/규칙_최신.json` | repo main 최신 규칙 단일 추출본 (07-05 02:48 Drive 교체 완료 — 다음 교체 때 새로 추출할 것) |
 
 ※ `260701_크롤링_로우데이터_v2.csv`(10편 실험본)는 저장소 `로우데이터/`로 이동 완료.
 스키마 v2 문서 SSOT는 아티팩트: https://claude.ai/public/artifacts/f9918853-0bc0-42f9-8b91-a8cfc2e23501 (JS 렌더링 — 브라우저로 열 것)
