@@ -2,6 +2,11 @@ name: recalc-rules
 # 로우데이터에 새 CSV가 커밋되면 규칙을 자동 재계산한다.
 # (crawler의 publish.py가 CSV를 커밋 → 이 워크플로가 규칙_최신.json/md 갱신 커밋.
 #  갱신 커밋은 json/md만 건드려 paths 필터에 안 걸리므로 루프 없음.)
+#
+# 재계산 후 drama-production-kit의 영상문법가이드와 정합성(drift) 검사를 돌리고,
+# 요약 한 줄을 실행 리포트(Actions summary)와 규칙 갱신 커밋 메시지에 남긴다.
+# 가이드 본문은 절대 자동 수정하지 않는다 — drift_report.md 갱신도 kit 저장소
+# 자신의 guide-drift-check 워크플로가 한다 (GITHUB_TOKEN은 타 저장소 push 불가).
 on:
   push:
     branches: [main]
@@ -20,6 +25,23 @@ jobs:
       - name: 규칙 재계산 (content_type=drama_clip)
         run: python3 "00_규칙엔진/engine.py" --content-type drama_clip
 
+      - name: 제작 킷 체크아웃 (가이드 정합성 검사용, 읽기 전용)
+        uses: actions/checkout@v4
+        with:
+          repository: cony-byte/drama-production-kit
+          path: kit
+
+      - name: 가이드 drift 검사 (요약 한 줄 산출)
+        id: drift
+        continue-on-error: true
+        run: |
+          python3 kit/scripts/guide_drift_check.py \
+            --rules "00_규칙엔진/규칙_최신.json" \
+            --guide "kit/가이드/영상문법가이드_v10.1.md" \
+            --no-report | tee drift_console.txt
+          echo "summary=$(tail -1 drift_console.txt)" >> "$GITHUB_OUTPUT"
+          echo "### $(tail -1 drift_console.txt)" >> "$GITHUB_STEP_SUMMARY"
+
       - name: 변경분 커밋
         run: |
           git config user.name "recalc-bot"
@@ -28,6 +50,7 @@ jobs:
           if git diff --staged --quiet; then
             echo "규칙 변경 없음 — 커밋 생략"
           else
-            git commit -m "chore: 규칙 자동 재계산 (drama_clip) [recalc-bot]"
+            git commit -m "chore: 규칙 자동 재계산 (drama_clip) [recalc-bot]" \
+                       -m "${{ steps.drift.outputs.summary || '가이드 정합성: 검사 실패 (drift step 로그 확인)' }}"
             git push
           fi
