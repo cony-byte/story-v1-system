@@ -116,11 +116,21 @@ def median(xs):
     return round(statistics.median(xs), 3) if xs else None
 
 def load_rows(path, source):
-    """CSV 1개 → 영상단위 dict 리스트 (첫 행 기준 dedupe)"""
+    """CSV 1개 → 영상단위 dict 리스트 (첫 행 기준 dedupe)
+
+    발행성과 템플릿(episode_id/platform/publish_date/measure_point/views/... )도 여기로 흡수:
+    - 행 키는 episode_id|platform|publish_date|measure_point (같은 발행의 D7/D30 스냅샷은 별도 행)
+    - notes에 '예시'가 들어간 행은 템플릿 예시이므로 스킵
+    - ER%/저장률%가 없으면 (saves+shares+comments)/views, saves/views로 계산 (크롤링 스키마와 동일 정의)"""
     vids = {}
     with open(path, encoding="utf-8-sig") as f:
         for r in csv.DictReader(f):
+            if "예시" in (r.get("notes") or ""):
+                continue
             vid = r.get("source_video_id") or r.get("ep_id")
+            if not vid and (r.get("episode_id") or "").strip():
+                vid = "|".join([(r.get(k) or "").strip() for k in
+                                ("episode_id", "platform", "publish_date", "measure_point")])
             if not vid:
                 continue
             if vid in vids:
@@ -143,8 +153,37 @@ def load_rows(path, source):
                 "two_person_ratio": to_float(r.get("summary_two_person_ratio")),
                 "content_type": (r.get("content_type") or "").strip(),
                 "male_lead_tags": [t.strip() for t in (r.get("male_lead_type") or "").split("|") if t.strip()],
+                "episode_id": (r.get("episode_id") or "").strip(),
+                "platform": (r.get("platform") or "").strip(),
+                "publish_date": (r.get("publish_date") or "").strip(),
+                "measure_point": (r.get("measure_point") or "").strip().upper(),
             }
+            v = vids[vid]
+            if v["er"] is None and v["views"]:
+                parts = [to_float(r.get(k)) for k in ("saves", "shares", "comments")]
+                if any(p is not None for p in parts):
+                    v["er"] = round(sum(p or 0 for p in parts) / v["views"] * 100, 3)
+            if v["save_rate"] is None and v["views"]:
+                sv = to_float(r.get("saves"))
+                if sv is not None:
+                    v["save_rate"] = round(sv / v["views"] * 100, 3)
     return list(vids.values())
+
+def load_ep_triggers():
+    """03_캐릭터/*/episodes/*.json → {'char_x/ep_y': target_trigger}.
+    발행성과 행을 기획의 트리거와 연결하는 유일한 키. 폴더가 없어도 죽지 않는다."""
+    m = {}
+    root = os.path.dirname(BASE)
+    for p in glob.glob(os.path.join(root, "03_캐릭터", "*", "episodes", "*.json")):
+        try:
+            with open(p, encoding="utf-8") as f:
+                d = json.load(f)
+        except Exception:
+            continue
+        if d.get("character_id") and d.get("id"):
+            m[f"{d['character_id']}/{d['id']}"] = (d.get("target_trigger") or "").strip()
+    return m
+
 
 def load_all(content_type=None):
     vids = []
@@ -160,8 +199,28 @@ def load_all(content_type=None):
             continue
         uniq[v["video_id"]] = v
     vids = list(uniq.values())
+    # 자체발행: 같은 발행(episode_id+platform+publish_date)의 스냅샷 중 D7 우선 채택
+    # (측정 시점 고정 원칙 — D30 등 다른 스냅샷은 시계열 기록으로 남되 규칙 집계에선 제외)
+    own_groups = {}
+    for v in vids:
+        if v["source"] == "own_published" and v["episode_id"]:
+            own_groups.setdefault((v["episode_id"], v["platform"], v["publish_date"]), []).append(v)
+    drop = set()
+    for grp in own_groups.values():
+        pick = next((x for x in grp if x["measure_point"] == "D7"), grp[0])
+        for x in grp:
+            if x is not pick:
+                drop.add(id(x))
+    vids = [v for v in vids if id(v) not in drop]
+    # 발행성과 행을 기획의 target_trigger와 연결 → 크롤링과 같은 트리거 통계에 합산
+    ep_trig = load_ep_triggers()
+    for v in vids:
+        if v["source"] == "own_published" and v["episode_id"] in ep_trig and ep_trig[v["episode_id"]]:
+            if not v["grammar_tags"]:
+                v["grammar_tags"] = [ep_trig[v["episode_id"]]]
     if content_type:
-        vids = [v for v in vids if v["content_type"] == content_type]
+        # 자체발행은 정의상 본편(drama_clip)이므로 content_type 필터에서 면제
+        vids = [v for v in vids if v["content_type"] == content_type or v["source"] == "own_published"]
     return vids
 
 def rank_by_tag(vids, field, min_n=4):
@@ -233,10 +292,17 @@ def build(content_type=None):
     }
     # 자체발행 별도 집계 (예측 vs 실제)
     if own:
+        ep_trig = load_ep_triggers()
         rules["own_published_summary"] = {
             "n": len(own),
             "median_er": median([v["er"] for v in own]),
             "median_save_rate": median([v["save_rate"] for v in own]),
+            "videos": [{
+                "episode_id": v["episode_id"], "platform": v["platform"],
+                "publish_date": v["publish_date"], "measure_point": v["measure_point"],
+                "views": v["views"], "er": v["er"], "save_rate": v["save_rate"],
+                "target_trigger": ep_trig.get(v["episode_id"], ""),
+            } for v in own],
         }
     return rules
 
@@ -291,6 +357,10 @@ def write_md(rules):
         L.append(f"\n## 자체발행 성과 (예측 vs 실제 · {o['n']}편)\n")
         L.append(f"- 자체발행 반응률 중앙값 {o['median_er']}% (전체 기준선 {b['median_er']}%)")
         L.append(f"- 자체발행 저장률 중앙값 {o['median_save_rate']}%")
+        for v in o.get("videos", []):
+            L.append(f"  - {v['episode_id']} ({v['platform']}, {v['measure_point']}) — "
+                     f"반응률 {v['er']}% · 저장률 {v['save_rate']}% · 조회수 {v['views']}"
+                     + (f" · 트리거 {label_of(v['target_trigger'])}" if v['target_trigger'] else ""))
 
     L.append("\n---\n*이 파일은 engine.py가 자동 생성한다. 직접 수정하지 말 것.*")
     return "\n".join(L)
