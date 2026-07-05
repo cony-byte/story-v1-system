@@ -176,13 +176,30 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
     <h2>🌐 고정 상수 <span class="muted">— 세계관·여주 (통제변수 · 각 1개)</span></h2>
     <div class="fixedrow">
       <div class="fx"><span class="badge b-fixed">세계관 고정</span>
+        <button class="mini" style="float:right" onclick="toggleFixedEdit('world')">✏️ 수정</button>
         <div style="margin-top:6px"><b id="fx-world-name">고등학교</b> <span class="k" id="fx-world-id">world_highschool</span></div>
-        <div class="muted" id="fx-world-tone">풋풋하지만 텐션 높은 명문고 청춘 로맨스 — 01_세계관.json</div></div>
+        <div class="muted" id="fx-world-tone">풋풋하지만 텐션 높은 명문고 청춘 로맨스 — 01_세계관.json</div>
+        <div id="fx-world-edit" style="display:none;margin-top:8px">
+          <label>이름 <input id="fw_name"></label>
+          <label>톤·분위기 한 줄 <input id="fw_tone"></label>
+          <label>배경·규칙·제약 <textarea id="fw_setting"></textarea></label>
+          <label>치환 규칙 (한 줄에 하나) <textarea id="fw_rules" style="min-height:84px" placeholder="재벌 CEO → 전교회장·학생회장"></textarea></label>
+          <div style="margin-top:6px"><button class="mini pub" onclick="saveFixed('world')">💾 저장</button>
+            <button class="mini" onclick="toggleFixedEdit('world',false)">취소</button></div>
+        </div></div>
       <div class="fx"><span class="badge b-fixed">여주 고정</span>
+        <button class="mini" style="float:right" onclick="toggleFixedEdit('heroine')">✏️ 수정</button>
         <div style="margin-top:6px"><b id="fx-heroine-name">하린</b> <span class="k" id="fx-heroine-id">heroine_harin</span></div>
-        <div class="muted" id="fx-heroine-role">모든 남캐의 고정 상대역 — 02_여주.json</div></div>
+        <div class="muted" id="fx-heroine-role">모든 남캐의 고정 상대역 — 02_여주.json</div>
+        <div id="fx-heroine-edit" style="display:none;margin-top:8px">
+          <div class="row2"><label>이름 <input id="fh_name"></label><label>학년·반 <input id="fh_grade"></label></div>
+          <label>프로필 <textarea id="fh_profile"></textarea></label>
+          <label>역할 <input id="fh_role"></label>
+          <div style="margin-top:6px"><button class="mini pub" onclick="saveFixed('heroine')">💾 저장</button>
+            <button class="mini" onclick="toggleFixedEdit('heroine',false)">취소</button></div>
+        </div></div>
     </div>
-    <div class="legend">입력폼: <b>_고정설정_템플릿.json</b> (world/heroine 두 블록). 최초 1회 세팅 후 거의 안 바뀜.</div>
+    <div class="legend">✏️ 수정을 누르면 화면에서 직접 편집 — 저장 시 Drive의 <b>01_세계관.json / 02_여주.json</b>이 갱신되고 전체 화면이 새 값으로 다시 그려집니다. (id는 캐릭터·에피소드가 참조하는 고정 키라 잠금)</div>
   </div>
 
   <div class="card" id="kpiCard">
@@ -514,6 +531,49 @@ function renderAll(){renderFixed();renderKpi();renderRules();renderRel();populat
 function renderFixed(){
   if(WORLD){setTxt('fx-world-name',WORLD.name||'');setTxt('fx-world-id',WORLD.id||'');setTxt('fx-world-tone',(WORLD.tone||'')+' — 01_세계관.json');}
   if(HEROINE){setTxt('fx-heroine-name',HEROINE.name||'');setTxt('fx-heroine-id',HEROINE.id||'');setTxt('fx-heroine-role',(HEROINE.role||HEROINE.profile||'')+' — 02_여주.json');}
+}
+function toggleFixedEdit(kind,show){
+  var box=document.getElementById(kind==='world'?'fx-world-edit':'fx-heroine-edit');if(!box)return;
+  var on=(show===undefined)?(box.style.display==='none'):show;
+  if(on){
+    if(!CONNECTED){toast('먼저 로그인·동기화가 필요합니다');return;}
+    if(kind==='world'){var w=WORLD||{};
+      document.getElementById('fw_name').value=w.name||'';
+      document.getElementById('fw_tone').value=w.tone||'';
+      document.getElementById('fw_setting').value=w.setting||'';
+      document.getElementById('fw_rules').value=(w.localization_rules||[]).join('\n');
+    }else{var hh=HEROINE||{};
+      document.getElementById('fh_name').value=hh.name||'';
+      document.getElementById('fh_grade').value=hh.grade_class||'';
+      document.getElementById('fh_profile').value=hh.profile||'';
+      document.getElementById('fh_role').value=hh.role||'';
+    }
+  }
+  box.style.display=on?'block':'none';
+}
+async function saveFixed(kind){
+  try{
+    if(kind==='world'){
+      if(!FOLD.worldFile)throw new Error("Drive에서 01_세계관.json을 찾지 못했습니다");
+      if(!val('fw_name').trim())throw new Error('세계관 이름은 비울 수 없습니다');
+      WORLD=WORLD||{id:'world_highschool',_fixed:true,created_at:today()};
+      WORLD.name=val('fw_name').trim();WORLD.tone=val('fw_tone').trim();WORLD.setting=val('fw_setting').trim();
+      WORLD.localization_rules=val('fw_rules').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+      WORLD.updated_at=today();
+      await driveUpdateJson(FOLD.worldFile,WORLD);
+      toast('세계관 저장됨 → 01_세계관.json');
+    }else{
+      if(!FOLD.heroFile)throw new Error("Drive에서 02_여주.json을 찾지 못했습니다");
+      if(!val('fh_name').trim())throw new Error('여주 이름은 비울 수 없습니다');
+      HEROINE=HEROINE||{id:'heroine_harin',world_id:'world_highschool',_fixed:true,created_at:today()};
+      HEROINE.name=val('fh_name').trim();HEROINE.grade_class=val('fh_grade').trim();
+      HEROINE.profile=val('fh_profile').trim();HEROINE.role=val('fh_role').trim();
+      HEROINE.updated_at=today();
+      await driveUpdateJson(FOLD.heroFile,HEROINE);
+      toast('여주 저장됨 → 02_여주.json');
+    }
+    toggleFixedEdit(kind,false);renderAll();
+  }catch(e){toast('저장 실패: '+e.message);}
 }
 function renderKpi(){setTxt('kpi-chars',CHARS.filter(function(c){return c.status==='published';}).length);setTxt('kpi-eps',EPS.filter(function(e){return e.status==='published';}).length);}
 function baseER(){return RULES?RULES.baseline.median_er:0.42;}
