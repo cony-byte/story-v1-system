@@ -845,7 +845,8 @@ renderTodo();
 /* ===== 발행된 캐릭터 카드 목록 =====
    실앱: 전역 CHARS/EPS에서 렌더. 빈 쉘: DEMO_CHARS로 미리보기.
    실앱 연동 시 render 파이프라인에서 renderPubList() 호출. */
-var TRIG={jealousy_possession_or_rival:'독점욕·질투',protective_claim_or_rescue:'위기구원',breakup_rejection_or_distance:'이별·거리',choice_ultimatum_or_deadline:'직진·최후통첩',love_confession_or_desire:'고백·욕망',threat_danger_or_revenge:'위협·복수',marriage_family_or_pregnancy:'결혼·가족',general_dialogue:'일반대화',humiliation_status_drop_or_bullying:'굴욕·따돌림',misunderstanding_or_accusation:'오해·누명',power_money_or_status:'권력·재력',emotional_question_or_confrontation:'감정추궁·대립',secret_lie_or_reveal:'비밀·폭로',apology_regret_or_sacrifice:'사과·희생'};
+/* 폴백 라벨 — RULES(규칙_최신.json) 로드 전에만 사용. engine.py TRIGGER_LABEL과 동일 용어 체계 유지할 것. */
+var TRIG={jealousy_possession_or_rival:'① 독점욕·질투',protective_claim_or_rescue:'② 위기구원',breakup_rejection_or_distance:'이별·거절',choice_ultimatum_or_deadline:'④ 직진·최후통첩',love_confession_or_desire:'고백·욕망',threat_danger_or_revenge:'위협·위험·복수',marriage_family_or_pregnancy:'결혼·가족·임신',general_dialogue:'일반 대화',humiliation_status_drop_or_bullying:'굴욕·추락·괴롭힘',misunderstanding_or_accusation:'오해·누명',power_money_or_status:'권력·돈·지위',emotional_question_or_confrontation:'감정추궁·대립',secret_lie_or_reveal:'비밀·거짓말·폭로',apology_regret_or_sacrifice:'사과·후회·희생'};
 function trigLabel(t){ return TRIG[t]||t||''; }
 
 /* ===== 규칙 기반 추천 (규칙_최신.json 성과 수치 기반 · LLM/환각 없음) ===== */
