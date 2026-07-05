@@ -395,6 +395,8 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
         <table id="trigTable"><tbody></tbody></table>
         <div style="margin-top:10px" class="k">로맨스 설정 순위</div>
         <table id="tropeTable"><tbody></tbody></table>
+        <div style="margin-top:10px" class="k">남주 유형 순위 <span class="muted">(male_lead_type · 실험 단위 축 · 저표본 기준 n&lt;10)</span></div>
+        <table id="maleLeadTable"><tbody></tbody></table>
         <div style="margin-top:10px" class="k">컷 지표(상위 1/3)</div>
         <div id="cutMetrics" class="muted">—</div>
       </div>
@@ -628,6 +630,12 @@ function renderRules(){var meta=document.getElementById('ruleMeta');
   var tb=document.querySelector('#trigTable tbody');if(tb)tb.innerHTML=h;
   h='';(RULES.trope_ranking||[]).slice(0,6).forEach(function(t){var s=t.median_er>=baseER();h+='<tr><td>'+(t.label||t.tag)+(t.low_sample?' <span class="pill">저표본</span>':'')+'</td><td>'+t.median_er+'</td><td><span class="badge '+(s?'b-strong':'b-weak')+'">'+(s?'강':'약')+'</span></td></tr>';});
   var tb2=document.querySelector('#tropeTable tbody');if(tb2)tb2.innerHTML=h;
+  h='';(RULES.male_lead_ranking||[]).forEach(function(t){
+    if(t.low_sample){h+='<tr><td>'+(t.label||t.tag)+' <span class="pill">표본 수집 중 · n='+t.n+'</span></td><td>—</td><td>—</td></tr>';}
+    else{var s=t.median_er>=baseER();h+='<tr><td>'+(t.label||t.tag)+' <span class="k">n='+t.n+'</span></td><td>'+t.median_er+'</td><td><span class="badge '+(s?'b-strong':'b-weak')+'">'+(s?'강':'약')+'</span></td></tr>';}
+  });
+  var tb3=document.querySelector('#maleLeadTable tbody');
+  if(tb3)tb3.innerHTML=h||'<tr><td class="muted" colspan="3">규칙_최신.json에 male_lead_ranking이 없습니다 — Drive의 규칙 파일이 구버전이면 최신본으로 교체하세요.</td></tr>';
   var cm=RULES.cut_metrics&&RULES.cut_metrics.top_third;if(cm)document.getElementById('cutMetrics').innerHTML='컷 '+cm.median_cut_count+'개 · 길이 '+cm.median_video_len+'s · 첫3초 클로즈업 '+cm.median_first3s_closeup;
 }
 function renderRel(){var tb=document.querySelector('#relTable tbody'),sum=document.getElementById('relSummary');if(!tb)return;
