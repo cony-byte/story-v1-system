@@ -1,0 +1,33 @@
+name: recalc-rules
+# 로우데이터에 새 CSV가 커밋되면 규칙을 자동 재계산한다.
+# (crawler의 publish.py가 CSV를 커밋 → 이 워크플로가 규칙_최신.json/md 갱신 커밋.
+#  갱신 커밋은 json/md만 건드려 paths 필터에 안 걸리므로 루프 없음.)
+on:
+  push:
+    branches: [main]
+    paths:
+      - "00_규칙엔진/로우데이터/**.csv"
+  workflow_dispatch:
+
+jobs:
+  recalc:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 규칙 재계산 (content_type=drama_clip)
+        run: python3 "00_규칙엔진/engine.py" --content-type drama_clip
+
+      - name: 변경분 커밋
+        run: |
+          git config user.name "recalc-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "00_규칙엔진/규칙_최신.json" "00_규칙엔진/규칙_최신.md"
+          if git diff --staged --quiet; then
+            echo "규칙 변경 없음 — 커밋 생략"
+          else
+            git commit -m "chore: 규칙 자동 재계산 (drama_clip) [recalc-bot]"
+            git push
+          fi
