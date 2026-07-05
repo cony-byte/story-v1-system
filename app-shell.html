@@ -183,7 +183,18 @@ button.regen{margin-left:auto;font-size:11px;padding:3px 9px;background:#f4f0ff;
           <label>이름 <input id="fw_name"></label>
           <label>톤·분위기 한 줄 <input id="fw_tone"></label>
           <label>배경·규칙·제약 <textarea id="fw_setting"></textarea></label>
-          <label>치환 규칙 (한 줄에 하나) <textarea id="fw_rules" style="min-height:84px" placeholder="재벌 CEO → 전교회장·학생회장"></textarea></label>
+          <label>세계관 유형 <select id="fw_preset">
+            <option value="school_campus">학교·캠퍼스</option>
+            <option value="office_workplace">회사·오피스</option>
+            <option value="chaebol_highsociety">재벌·상류사회</option>
+            <option value="historical_palace">궁중·사극</option>
+            <option value="medical">병원·메디컬</option>
+            <option value="entertainment_idol">연예계·아이돌</option>
+            <option value="everyday_neighborhood">동네·일상</option>
+            <option value="fantasy_supernatural">판타지·초자연</option>
+          </select></label>
+          <div style="margin:4px 0"><button class="mini primary" onclick="fillRulePreset()">🧩 치환 규칙 자동 채우기 <span class="k">(규칙 기반 · 환각 없음)</span></button></div>
+          <label>치환 규칙 <span class="k">(자동 채우기 후 필요한 줄만 고치세요 · 한 줄에 하나)</span> <textarea id="fw_rules" style="min-height:104px" placeholder="유형을 고르고 자동 채우기를 누르세요"></textarea></label>
           <div style="margin-top:6px"><button class="mini pub" onclick="saveFixed('world')">💾 저장</button>
             <button class="mini" onclick="toggleFixedEdit('world',false)">취소</button></div>
         </div></div>
@@ -532,6 +543,37 @@ function renderFixed(){
   if(WORLD){setTxt('fx-world-name',WORLD.name||'');setTxt('fx-world-id',WORLD.id||'');setTxt('fx-world-tone',(WORLD.tone||'')+' — 01_세계관.json');}
   if(HEROINE){setTxt('fx-heroine-name',HEROINE.name||'');setTxt('fx-heroine-id',HEROINE.id||'');setTxt('fx-heroine-role',(HEROINE.role||HEROINE.profile||'')+' — 02_여주.json');}
 }
+/* 치환 규칙 프리셋 — 보편 소재 5축(재벌CEO/계약결혼/권력차/정략/조폭)을 세계관 용어로 번역.
+   유형 키는 크롤링 스키마 v2.1 setting 사전(§3-7)과 동일 체계 (규칙 기반 · LLM 없음). */
+var WORLD_RULE_PRESETS={
+  school_campus:["재벌 CEO / 억만장자 → 전교회장·학생회장으로 치환","계약결혼 / 계약연애 → 커플 미션·짝 배정·동아리 파트너로 치환","직장 권력차 → 선후배·성적 서열·학생회 직책 권력차로 치환","재벌가 정략 → 명문가 집안·학벌 압박으로 치환","폭력/조폭 → 일진·라이벌 학교 에이스로 순화"],
+  office_workplace:["재벌 CEO / 억만장자 → 오너 일가 본부장·젊은 대표로 치환","계약결혼 / 계약연애 → 위장 사내커플·계약 연애로 치환","직장 권력차 → 상사-부하·결재 라인 권력차 그대로 사용","재벌가 정략 → 오너가 혼사·지분 경쟁으로 치환","폭력/조폭 → 사내 정치·라이벌 부서 에이스로 순화"],
+  chaebol_highsociety:["재벌 CEO / 억만장자 → 그대로 사용 (본 세계관의 기본값)","계약결혼 / 계약연애 → 그대로 사용","직장 권력차 → 오너-비서·후계 서열 권력차로 치환","재벌가 정략 → 그대로 사용","폭력/조폭 → 회장가 경호·이면 거래 세력으로 치환"],
+  historical_palace:["재벌 CEO / 억만장자 → 왕자·세자로 치환","계약결혼 / 계약연애 → 정략혼·간택으로 치환","직장 권력차 → 왕족-궁녀 신분차로 치환","재벌가 정략 → 왕실 혼맥·외척 압박으로 치환","폭력/조폭 → 자객·역모 세력으로 치환"],
+  medical:["재벌 CEO / 억만장자 → 병원장 아들·천재 집도의로 치환","계약결혼 / 계약연애 → 위장 보호자·계약 동거로 치환","직장 권력차 → 교수-전공의 위계로 치환","재벌가 정략 → 병원 이사장가 혼사로 치환","폭력/조폭 → VIP 병동 뒷배·의료소송 브로커로 순화"],
+  entertainment_idol:["재벌 CEO / 억만장자 → 톱스타·기획사 대표로 치환","계약결혼 / 계약연애 → 비즈니스 열애·위장 커플로 치환","직장 권력차 → 대표-연습생 위계로 치환","재벌가 정략 → 기획사 합병·스폰 압박으로 치환","폭력/조폭 → 사생팬·악성 루머 세력으로 순화"],
+  everyday_neighborhood:["재벌 CEO / 억만장자 → 건물주 아들·동네 유명인으로 치환","계약결혼 / 계약연애 → 위장 연인으로 치환","직장 권력차 → 사장-알바 관계로 치환","재벌가 정략 → 집안 반대·혼사 압박으로 치환","폭력/조폭 → 동네 건달로 순화"],
+  fantasy_supernatural:["재벌 CEO / 억만장자 → 알파·군주·최강 존재로 치환","계약결혼 / 계약연애 → 운명의 짝·계약 각인으로 치환","직장 권력차 → 종족·서열 권력차로 치환","재벌가 정략 → 혈통 결합·무리 압박으로 치환","폭력/조폭 → 적대 무리·금기 종족으로 치환"]};
+function guessRulePreset(){
+  var t=((val('fw_name')||'')+' '+(val('fw_setting')||'')+' '+(val('fw_tone')||''));
+  if(/학교|고등|캠퍼스|대학/.test(t))return 'school_campus';
+  if(/회사|오피스|직장|사무/.test(t))return 'office_workplace';
+  if(/재벌|상류|저택/.test(t))return 'chaebol_highsociety';
+  if(/궁|사극|조선|왕/.test(t))return 'historical_palace';
+  if(/병원|의사|메디컬/.test(t))return 'medical';
+  if(/아이돌|연예|기획사/.test(t))return 'entertainment_idol';
+  if(/늑대|뱀파이어|판타지|마법|초능력/.test(t))return 'fantasy_supernatural';
+  if(/동네|일상|카페/.test(t))return 'everyday_neighborhood';
+  return null;
+}
+function fillRulePreset(){
+  var k=val('fw_preset'),rules=WORLD_RULE_PRESETS[k];
+  if(!rules){toast('알 수 없는 유형입니다');return;}
+  var cur=val('fw_rules').trim();
+  if(cur&&cur!==(WORLD&&(WORLD.localization_rules||[]).join('\n'))&&!confirm('치환 규칙 입력칸을 프리셋으로 교체할까요?'))return;
+  document.getElementById('fw_rules').value=rules.join('\n');
+  toast('치환 규칙 5줄 채움 — 필요한 줄만 수정하세요');
+}
 function toggleFixedEdit(kind,show){
   var box=document.getElementById(kind==='world'?'fx-world-edit':'fx-heroine-edit');if(!box)return;
   var on=(show===undefined)?(box.style.display==='none'):show;
@@ -542,6 +584,7 @@ function toggleFixedEdit(kind,show){
       document.getElementById('fw_tone').value=w.tone||'';
       document.getElementById('fw_setting').value=w.setting||'';
       document.getElementById('fw_rules').value=(w.localization_rules||[]).join('\n');
+      var g=guessRulePreset();if(g)document.getElementById('fw_preset').value=g;
     }else{var hh=HEROINE||{};
       document.getElementById('fh_name').value=hh.name||'';
       document.getElementById('fh_grade').value=hh.grade_class||'';
