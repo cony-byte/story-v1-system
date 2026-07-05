@@ -142,6 +142,7 @@ def load_rows(path, source):
                 "first_cut_dur":   to_float(r.get("summary_first_cut_duration")),
                 "two_person_ratio": to_float(r.get("summary_two_person_ratio")),
                 "content_type": (r.get("content_type") or "").strip(),
+                "male_lead_tags": [t.strip() for t in (r.get("male_lead_type") or "").split("|") if t.strip()],
             }
     return list(vids.values())
 
@@ -224,6 +225,10 @@ def build(content_type=None):
         "trope_ranking":           rank_by_tag(vids, "trope_tags"),
         "story_type_ranking":      rank_by_tag(vids, "story_type"),
         "hook_type_ranking":       rank_by_tag(vids, "hook_type"),
+        # 남주 유형: 다중 태그(영상당 최대 2개)라 태그별 중복 카운트. unknown(판별 불가)은
+        # 성과 순위로서 무의미해 제외. 실험 단위 축이므로 저표본 기준은 n<10으로 엄격 적용.
+        "male_lead_ranking":       [t for t in rank_by_tag(vids, "male_lead_tags", min_n=10)
+                                    if t["tag"] != "unknown"],
         "cut_metrics":             cut_metrics(vids),
     }
     # 자체발행 별도 집계 (예측 vs 실제)
@@ -258,6 +263,15 @@ def write_md(rules):
     for t in rules["trope_ranking"]:
         flag = " ⚠️저표본" if t["low_sample"] else ""
         L.append(f"| {t['label']}{flag} | {t['n']} | {t['median_er']} | {t['median_save_rate']} |")
+
+    ml = rules.get("male_lead_ranking") or []
+    if ml:
+        L.append("\n## 남주 유형 순위 (male_lead_type · ER 중앙값 · 저표본 기준 n<10)\n")
+        L.append("| 남주 유형 | n | ER% | 저장률% |")
+        L.append("|---|---|---|---|")
+        for t in ml:
+            flag = " ⚠️표본 수집 중" if t["low_sample"] else ""
+            L.append(f"| {t['label']} ({t['tag']}){flag} | {t['n']} | {t['median_er']} | {t['median_save_rate']} |")
 
     cm = rules["cut_metrics"]
     if "top_third" in cm:

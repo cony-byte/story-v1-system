@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-04T18:27:53",
+  "generated_at": "2026-07-05T11:08:41",
   "content_type_filter": "drama_clip",
   "n_videos_total": 76,
   "n_own_published": 0,
@@ -419,6 +419,62 @@
       "median_save_rate": 0.257,
       "median_views": 64300.0,
       "low_sample": false
+    }
+  ],
+  "male_lead_ranking": [
+    {
+      "tag": "dominant_possessive",
+      "label": "집착·독점형",
+      "n": 17,
+      "median_er": 0.483,
+      "median_save_rate": 0.392,
+      "median_views": 106900.0,
+      "low_sample": false
+    },
+    {
+      "tag": "devoted_straightforward",
+      "label": "직진·헌신형",
+      "n": 14,
+      "median_er": 0.449,
+      "median_save_rate": 0.345,
+      "median_views": 195450.0,
+      "low_sample": false
+    },
+    {
+      "tag": "dangerous_forbidden",
+      "label": "위험·금기형",
+      "n": 16,
+      "median_er": 0.421,
+      "median_save_rate": 0.339,
+      "median_views": 109750.0,
+      "low_sample": false
+    },
+    {
+      "tag": "cold_to_warm",
+      "label": "냉정→다정형",
+      "n": 9,
+      "median_er": 0.416,
+      "median_save_rate": 0.29,
+      "median_views": 185400.0,
+      "low_sample": true
+    },
+    {
+      "tag": "powerful_status",
+      "label": "권력·재벌형",
+      "n": 33,
+      "median_er": 0.365,
+      "median_save_rate": 0.3,
+      "median_views": 132100.0,
+      "low_sample": false
+    },
+    {
+      "tag": "protective_rescuer",
+      "label": "위기구원·보호형",
+      "n": 3,
+      "median_er": 0.348,
+      "median_save_rate": 0.244,
+      "median_views": 59500.0,
+      "low_sample": true
     }
   ],
   "cut_metrics": {
