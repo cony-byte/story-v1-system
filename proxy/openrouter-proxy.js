@@ -63,7 +63,7 @@ export default {
         "Content-Type": "application/json",
         Authorization: "Bearer " + env.OPENROUTER_KEY,
         "HTTP-Referer": allowOrigin,
-        "X-Title": "숏폼 기획 대시보드",
+        "X-Title": "story-dashboard",
       },
       body: JSON.stringify(body),
     });

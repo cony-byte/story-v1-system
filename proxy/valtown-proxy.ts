@@ -57,7 +57,7 @@ export default async function (req: Request): Promise<Response> {
       "Content-Type": "application/json",
       Authorization: "Bearer " + key,
       "HTTP-Referer": allowOrigin,
-      "X-Title": "숏폼 기획 대시보드",
+      "X-Title": "story-dashboard",
     },
     body: JSON.stringify(body),
   });
