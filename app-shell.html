@@ -439,8 +439,8 @@ document.getElementById('loginBtn').onclick=function(){if(!tokenClient){gmsg('Go
 function signOut(){if(TOKEN&&window.google)google.accounts.oauth2.revoke(TOKEN,function(){});TOKEN=null;CONNECTED=false;
   document.getElementById('app').classList.add('hidden');document.getElementById('gate').style.display='block';}
 function onSignedIn(){document.getElementById('gate').style.display='none';document.getElementById('app').classList.remove('hidden');whoAmI();loadAll();}
-function whoAmI(){fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:'Bearer '+TOKEN}})
-  .then(function(r){return r.json();}).then(function(j){var e=document.getElementById('who');if(e)e.textContent=j.email||'';}).catch(function(){});}
+function whoAmI(){fetch('https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)',{headers:{Authorization:'Bearer '+TOKEN}})
+  .then(function(r){return r.json();}).then(function(j){var e=document.getElementById('who');if(e)e.textContent=(j.user&&j.user.emailAddress)||'';}).catch(function(){});}
 
 /* ---------- Drive REST ---------- */
 function driveFetch(url,opts){opts=opts||{};opts.headers=Object.assign({Authorization:'Bearer '+TOKEN},opts.headers||{});
