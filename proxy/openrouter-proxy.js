@@ -38,11 +38,11 @@ export default {
     if (!token) return j({ error: "missing Google token" }, 401, cors);
     let email = "";
     try {
-      const ui = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+      const ui = await fetch("https://www.googleapis.com/drive/v3/about?fields=user(emailAddress)", {
         headers: { Authorization: "Bearer " + token },
       });
       if (!ui.ok) return j({ error: "google auth check failed" }, 401, cors);
-      email = ((await ui.json()).email || "").toLowerCase();
+      email = (((await ui.json()).user||{}).emailAddress || "").toLowerCase();
     } catch (e) {
       return j({ error: "auth error" }, 401, cors);
     }
