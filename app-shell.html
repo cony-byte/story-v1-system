@@ -919,7 +919,7 @@ async function aiJSON(user){
   if(!AI_PROXY_URL)throw new Error('AI 프록시 미설정 (관리자에게 문의)');
   if(!TOKEN)throw new Error('로그인이 필요합니다');
   var r=await fetch(AI_PROXY_URL,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+TOKEN},
-    body:JSON.stringify({temperature:0.9,response_format:{type:'json_object'},messages:[{role:'system',content:AI_SYS},{role:'user',content:user}]})});
+    body:JSON.stringify({temperature:0.9,messages:[{role:'system',content:AI_SYS},{role:'user',content:user}]})});/* response_format 제거 — OpenRouter의 Claude 계열이 미지원, JSON은 parseAiJson이 프로즈에서도 추출 */
   if(!r.ok){var t=await r.text();throw new Error(r.status===403?'AI 사용 권한 없음(허용 목록 아님)':(r.status===401?'로그인 만료 — 재로그인':'AI 호출 실패 '+r.status+' '+t.slice(0,120)));}
   var j=await r.json();var c=j.choices&&j.choices[0]&&j.choices[0].message&&j.choices[0].message.content;return parseAiJson(c);}
 var DEMO_CHARS=[
